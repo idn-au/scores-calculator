@@ -1,0 +1,55 @@
+= Scores Calculators
+
+This is a Python package that can calculate https://www.go-fair.org/fair-principles/[FAIR], https://ardc.edu.au/resource/the-care-principles/[CARE] and other scores for datasets, based on DCAT-style metadata.
+
+Individual FAIR, CARE & LC Labels assessments are performed in the _fair.py_ and similar files within the _calculators_ folder and the calculators module as a whole imports them all and can be used to run any of them.
+
+== Installation
+
+The Python dependencies for this package are given in the file _pyproject.toml_ in this folder which is expected to be used with Python's https://python-poetry.org/[Poetry] too for environment establishment.
+
+== Calculator logic
+
+The logic used to generate scored or requirement for labels is given within comments in the script files. The logic is based on IDN deliberations or precedent, in the case of FAIR scores, and may be published in a more human-readable form when a complete first version of the scripts is working.
+
+== Use
+
+These Python scripts calculate their various scores from input metadata. In addition to looking for metadata elements, they also look up additional details for values they see online, in particular they attempt to ascertain the indigeneity of `Agents` associate with a `Dataset` by looking up the `Agent` online, in the http://idn.kurrawong.net[IDN Agent Catalogue] which contains indigeneity notes.
+
+To use the scripts via _calc.py_, you need to run them as a Python command line program:
+
+`~$ python calc.py ...`
+
+You need to indicate the calculation being performed - "fair", "care" or "lc" and to indicate the source of the metadata to be assessed - a file or online location. You can optionally tell the script how to return results, rather than just printing them to screen. the formal command line arguments are:
+
+== Contributing
+
+The developers of this software - the Indigenous Data Network - recognise that it will be of value beyond their scope, i.e. for non-indigenous, non-Australia data, and are very happy to collaborate with anyone to improve the code. Improvements for others will surely improve the IDN's own assessments of indigenous Australian data after all.
+
+To collaborate, please formulate https://docs.github.com/en/pull-requests[_Pull Requests_] against this codebase which the IDN team will review. If you are uncertain about the scpe/direction etc. of a potential PR, please just be in touch and ask up! You could raise an Issue in this codebase's https://github.com/idn-au/scores-calculator/issues[Issue Tracker] to test the waters...
+
+== Licensing & Rights
+
+The creators and maintainers of this software wish for it to be available for use as widely as possible. The software is thus licensed using the very permissive https://opensource.org/licenses/BSD-3-Clause[BSD 3-Clause] software license, a copy of the deed of which is in the file LICENSE.
+
+This software is copyright as follows:
+
+(c) Indigenous Data Network, 2022
+
+== Contact
+
+Please contact the Indigenous Data Network maintainers of this code for all issues:
+
+_Lead Developer_: +
+*Nicholas Car* +
+GitHub: https://github.com/nicholascar[@nicholascar] +
+Email: nick@kurrawong.net +
+
+_Project Owner_: +
+*Sandra Silcot* +
+GitHub: https://github.com/ssilcot[@ssilcot] +
+
+_Owner Organisation_ +
+*Indigenous Data Network* +
+https://idnau.org
+
