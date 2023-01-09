@@ -1,7 +1,7 @@
 """
 Calculates the FAIR score of a resource.
 
-usage: calc_fair.py [-h] [-o OUTPUT] [-v VALIDATE] input
+usage: fair.py [-h] [-o OUTPUT] [-v VALIDATE] input
 
 positional arguments:
   input                 The path of an RDF file or URL of RDF data online.
@@ -14,7 +14,7 @@ options:
                         to standard out. If a format is given, that format will be returned
                         to. standard out. For a given output file path, the file extension
                         determines the format and must be one of .ttl, .rdf, .json-ld, .nt
-                        for Turtle, RDF/XML, JSON-LD or N-Ttripes. If a format is given, it
+                        for Turtle, RDF/XML, JSON-LD or N-Triples. If a format is given, it
                         must be one of text/turtle, application/rdf+xml,
                         application/ld+json, text/nt
   -v VALIDATE, --validate VALIDATE
