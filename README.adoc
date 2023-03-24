@@ -6,7 +6,7 @@ Individual FAIR, CARE & LC Labels assessments are performed in the _fair.py_ and
 
 == Installation
 
-The Python dependencies for this package are given in the file _pyproject.toml_ in this folder which is expected to be used with Python's https://python-poetry.org/[Poetry] too for environment establishment.
+The Python dependencies for this package are given in the file _pyproject.toml_ in this folder which is expected to be used with Python's https://python-poetry.org/[Poetry] tool for environment establishment.
 
 == Calculator logic
 
