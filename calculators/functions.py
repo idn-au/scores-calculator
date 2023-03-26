@@ -1,7 +1,7 @@
 from collections import Counter
 from typing import List
 
-from rdflib import Literal, DCTERMS, PROV, DCAT, RDFS, URIRef, Graph
+from rdflib import Literal, DCTERMS, PROV, DCAT, RDFS, URIRef, Graph, XSD
 
 from reference_data.reference import \
     properties_expected_to_have_objects_with_uris, \
@@ -69,7 +69,7 @@ def licensing_score(metadata: Graph, resource: URIRef):
     return value
 
 
-def provenance_score(metadata: Graph, resource: URIRef):
+def provenance_score(metadata: Graph):
     """Check if the resource has provenance, using common provenance ontologies.
             Currently the following ontologies are checked:
                 - PROV
@@ -90,4 +90,11 @@ def data_source_score(metadata: Graph, resource: URIRef):
     From the DCTERMS ontology for DCTERMS.source: "Best practice is to identify the related resource by means of a URI or a string
     conforming to a formal identification system."
     """
-
+    source_term = metadata.value(subject=resource, predicate=DCTERMS.source, object=None)
+    if not source_term:
+        return 0
+    elif type(source_term) == URIRef:
+        return 2
+    elif type(source_term) == Literal and source_term.datatype == XSD.anyURI:
+        return 1
+    return 0

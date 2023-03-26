@@ -33,7 +33,8 @@ from rdflib.namespace import DCAT, DCTERMS, PROV, RDF, TIME
 from rdflib.term import Node
 
 from calculators._SCORES import SCORES
-from calculators.functions import machine_readability_score, shared_vocabs_ontologies, licensing_score, provenance_score
+from calculators.functions import machine_readability_score, shared_vocabs_ontologies, licensing_score, \
+    provenance_score, data_source_score
 
 QB = Namespace("http://purl.org/linked-data/cube#")
 
@@ -469,10 +470,9 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     # interpreted as referring to 4.3, which in turn refers to JDDCP 1-3.
     # This has been interpreted that, if a dcterms:source is declared, it should ideally be a URI,
     # and additional provenance information for it should exist.
-
-
-    # logic implemented: if a dcterms:source is declared
-
+    # logic implemented: if a dcterms:source is declared, check its type: if URI 2 points, otherwise, if it is a literal
+    # AND has a datatype of xsd:anyURI, 1 point, otherwise 0 points.
+    r_value += data_source_score(metadata, resource)
 
     return _create_observation(score_container, SCORES.fairRScore, Literal(r_value))
 
