@@ -1,2 +1,2 @@
-from _SCORES import SCORES
-import fair
+from calculators._SCORES import SCORES
+from calculators import fair
