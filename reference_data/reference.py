@@ -1,3 +1,4 @@
+from rdflib import SKOS, SDO
 from rdflib.namespace import DCAT, DCTERMS, PROV, RDFS
 
 
@@ -44,3 +45,6 @@ data_usage_license_properties = [DCTERMS.license]
 
 # used in Re-usability scoring for R1.2
 additional_provenance_properties = [DCTERMS.source]
+
+searchable_properties = [DCTERMS.title, RDFS.label, DCTERMS.description, DCTERMS.identifier, SKOS.prefLabel,
+                         SKOS.definition, SDO.name, SDO.description, SDO.identifier, SDO.alternateName]

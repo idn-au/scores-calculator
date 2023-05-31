@@ -6,7 +6,8 @@ from rdflib import Literal, DCTERMS, PROV, DCAT, RDFS, URIRef, Graph, XSD
 from reference_data.reference import \
     properties_expected_to_have_objects_with_uris, \
     machine_readable_formats_to_mime_types, \
-    properties_for_mediatypes_formats, data_usage_license_properties, additional_provenance_properties
+    properties_for_mediatypes_formats, data_usage_license_properties, additional_provenance_properties, \
+    searchable_properties
 
 
 def machine_readability_score(metadata: Graph, resource: URIRef):
@@ -96,5 +97,12 @@ def data_source_score(metadata: Graph, resource: URIRef):
     elif type(source_term) == URIRef:
         return 2
     elif type(source_term) == Literal and source_term.datatype == XSD.anyURI:
+        return 1
+    return 0
+
+def searchable_score(metadata: Graph):
+    """Check if the resource is searchable"""
+    all_props = set(metadata.predicates(subject=None, object=None))
+    if any([p for p in all_props if p in searchable_properties]):
         return 1
     return 0

@@ -78,7 +78,7 @@ def test_provenance_score():
     resource = URIRef(
         "https://data.gov.au/data/dataset/34b1c164-fbe8-44a0-84fd-467dba645aa7"
     )
-    component_score = provenance_score(g, resource)
+    component_score = provenance_score(g)
     assert component_score == 2
 
 def test_data_source_score():
