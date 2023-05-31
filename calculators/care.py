@@ -45,6 +45,15 @@ from calculators.parser import (
 
 QB = Namespace("http://purl.org/linked-data/cube#")
 
+RDF_MEDIA_TYPES = [
+    "text/turtle",
+    "text/n3",
+    "application/ld+json",
+    "application/n-triples",
+    "application/n-quads",
+    "application/rdf+xml",
+]
+
 RDF_FILE_SUFFIXES = {
     ".ttl": "text/turtle",
     ".rdf": "application/rdf+xml",
@@ -59,12 +68,16 @@ EXTRA_PREFIXES = {
 
 
 def calculate_care_c(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """ """
+    """Collective benefit
+
+    Data ecosystems shall be designed and function in ways that enable Indigenous Peoples to derive benefit from the
+    data."""
     c_value = 0
     c1_score = calculate_care_c1(metadata, resource)
     c_value += c1_score
-    c_value += calculate_care_c2(metadata, resource, c1_score)
-
+    c2_score = calculate_care_c2(metadata, resource, c1_score)
+    c_value += c2_score
+    c_value += calculate_care_c3(metadata, resource, c2_score)
     return _create_observation(score_container, SCORES.careCScore, Literal(c_value))
 
 
@@ -81,33 +94,21 @@ def calculate_care_c1(metadata: Graph, resource: URIRef) -> int:
     Data is accessible (restrictions can apply) (Access Rights exist,+1)
     """
     c1_value = 0
-    c1_value += calculate_c1_discoverable(metadata, resource)
+    c1_value += calculate_c1_discoverable(resource)
     c1_value += calculate_c1_searchable(metadata)
     c1_value += calculate_c1_accessible(metadata, resource)
     return c1_value
 
 
-def calculate_c1_discoverable(metadata: Graph, resource: URIRef):
-    """Metadata is discoverable (+1)"""
-    catalogue = None
-    for o in metadata.objects(resource, DCTERMS.isPartOf):
-        catalogue = str(o)
-    if catalogue is not None:
-        RDF_MEDIA_TYPES = [
-            "text/turtle",
-            "text/n3",
-            "application/ld+json",
-            "application/n-triples",
-            "application/n-quads",
-            "application/rdf+xml",
-        ]
-        x = httpx.get(
-            catalogue,
-            headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
-            follow_redirects=True,
-        )
-        if x.is_success:
-            return 1
+def calculate_c1_discoverable(resource: URIRef):
+    """check if the resource itself is discoverable"""
+    x = httpx.get(
+        resource,
+        headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
+        follow_redirects=True,
+    )
+    if x.is_success:
+        return 1
     return 0
 
 
@@ -134,6 +135,45 @@ def calculate_care_c2(metadata: Graph, resource: URIRef, c1_score) -> int:
     c2_value = 0
     if c1_score > 2:
         c2_value += 1
+    c2_value += calculate_c2_discoverable(metadata, resource)
+    c2_value += any(metadata.objects(resource, DCTERMS.title))
+    c2_value += any(metadata.objects(resource, DCTERMS.description))
+
+
+def calculate_care_c3(metadata: Graph, resource: URIRef, c2_score: int) -> int:
+    """For equitable outcomes
+
+    Indigenous data are grounded in community values, which extend to society at large. Any value created from
+    Indigenous data should benefit Indigenous communities in an equitable manner and contribute to Indigenous
+    aspirations for wellbeing.
+
+    (Ethical) Use of the data has been documented [C2>3, +1] and then
+    locations of data collected are discoverable (Distribution info exists, +1).
+    Equitable Outcomes from data are discoverable,? If the catalogue is about the data, I am not sure how provenance can
+    be measured.
+    """
+    c3_value = 0
+    if c2_score > 3:
+        c3_value += 1
+    c3_value += any(metadata.objects(resource, DCAT.distribution))
+    # TODO determine how to measure equitable outcomes.
+    return c3_value
+
+
+def calculate_c2_discoverable(metadata: Graph, resource: URIRef):
+    """Metadata is discoverable (+1)"""
+    catalogue = None
+    for o in metadata.objects(resource, DCTERMS.isPartOf):
+        catalogue = str(o)
+    if catalogue is not None:
+        x = httpx.get(
+            catalogue,
+            headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
+            follow_redirects=True,
+        )
+        if x.is_success:
+            return 1
+    return 0
 
 
 def calculate_c1_accessible(metadata: Graph, resource: URIRef):
@@ -144,9 +184,52 @@ def calculate_c1_accessible(metadata: Graph, resource: URIRef):
 
 
 def calculate_care_a(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """ """
+    """Authority to control
+
+    Indigenous Peoples’ rights and interests in Indigenous data must be recognised and their authority to control such
+    data be empowered. Indigenous data governance enables Indigenous Peoples and governing bodies to determine how
+    Indigenous Peoples, as well as Indigenous lands, territories, resources, knowledges and geographical indicators, are
+    represented and identified within data."""
     a_value = 0
     return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
+
+def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
+    """Recognizing rights and interests
+
+    Indigenous Peoples have rights and interests in both Indigenous Knowledge and Indigenous data. Indigenous Peoples
+    have collective and individual rights to free, prior, and informed consent in the collection and use of such data,
+    including the development of data policies and protocols for collection.
+
+    A1.1     The Institutional Data Catalogue has applied Institutional discovery Notices.
+    [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]
+
+    A1.2      Licence, Rights and Access Rights are complete, +2
+    """
+    a1_value = 0
+    a1_value += calculate_a11_notices(metadata, resource)
+    a1_value += calculate_a12_licence_rights(metadata, resource)
+    return a1_value
+
+def calculate_a11_notices(metadata: Graph, resource: URIRef):
+    """The Institutional Data Catalogue has applied Institutional discovery Notices.
+    [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
+    LC = Namespace("https://localcontexts.org/notices/")
+    if any(metadata.objects(resource, LC["attribution-incomplete"]) or
+        metadata.objects(resource, LC["open-to-collaborate"])):
+        return 1
+    return 0
+
+def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
+    """The Institutional Data Catalogue has applied Institutional discovery Notices.
+    [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
+    if any(metadata.objects(resource, DCTERMS.rights))\
+        and any(metadata.objects(resource, DCTERMS.license))\
+        and any(metadata.objects(resource, DCTERMS.accessRights)):
+        return 2
+    return 0
+
+def calculate_care_a2(metadata: Graph, resource: URIRef) -> int:
+    ...
 
 
 def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
@@ -187,9 +270,9 @@ def calculate_care_per_resource(g: Graph) -> Graph:
 
 
 def main(
-    input: Union[Path, str, Graph],
-    output: Optional[str] = "text/turtle",
-    validate: bool = False,
+        input: Union[Path, str, Graph],
+        output: Optional[str] = "text/turtle",
+        validate: bool = False,
 ):
     """The main function of this module. Accepts a path to an RDF file, a URL leading to RDF or an RDFLib graph
     as input and returns either an RDFLib Graph object, an RDF stream in the given format or writes RDF to a file with
