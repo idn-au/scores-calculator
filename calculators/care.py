@@ -193,6 +193,7 @@ def calculate_care_a(metadata: Graph, resource: URIRef, score_container: Node) -
     a_value = 0
     return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
 
+
 def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
     """Recognizing rights and interests
 
@@ -210,23 +211,30 @@ def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
     a1_value += calculate_a12_licence_rights(metadata, resource)
     return a1_value
 
+
 def calculate_a11_notices(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
     LC = Namespace("https://localcontexts.org/notices/")
-    if any(metadata.objects(resource, LC["attribution-incomplete"]) or
-        metadata.objects(resource, LC["open-to-collaborate"])):
+    if any(
+        metadata.objects(resource, LC["attribution-incomplete"])
+        or metadata.objects(resource, LC["open-to-collaborate"])
+    ):
         return 1
     return 0
+
 
 def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
-    if any(metadata.objects(resource, DCTERMS.rights))\
-        and any(metadata.objects(resource, DCTERMS.license))\
-        and any(metadata.objects(resource, DCTERMS.accessRights)):
+    if (
+        any(metadata.objects(resource, DCTERMS.rights))
+        and any(metadata.objects(resource, DCTERMS.license))
+        and any(metadata.objects(resource, DCTERMS.accessRights))
+    ):
         return 2
     return 0
+
 
 def calculate_care_a2(metadata: Graph, resource: URIRef) -> int:
     ...
@@ -270,9 +278,9 @@ def calculate_care_per_resource(g: Graph) -> Graph:
 
 
 def main(
-        input: Union[Path, str, Graph],
-        output: Optional[str] = "text/turtle",
-        validate: bool = False,
+    input: Union[Path, str, Graph],
+    output: Optional[str] = "text/turtle",
+    validate: bool = False,
 ):
     """The main function of this module. Accepts a path to an RDF file, a URL leading to RDF or an RDFLib graph
     as input and returns either an RDFLib Graph object, an RDF stream in the given format or writes RDF to a file with
