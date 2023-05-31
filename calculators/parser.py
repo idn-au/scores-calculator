@@ -46,6 +46,8 @@ EXTRA_PREFIXES = {
     "scores": SCORES,
     "qb": QB,
 }
+
+
 def _create_parser():
     parser = argparse.ArgumentParser()
 

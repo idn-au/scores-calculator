@@ -4,8 +4,13 @@ from pathlib import Path
 from rdflib import Graph, BNode, URIRef
 
 from calculators.fair import calculate_i
-from calculators.functions import shared_vocabs_ontologies, machine_readability_score, licensing_score, \
-    provenance_score, data_source_score
+from calculators.functions import (
+    shared_vocabs_ontologies,
+    machine_readability_score,
+    licensing_score,
+    provenance_score,
+    data_source_score,
+)
 
 calc_module_path = Path(Path(__file__).parent.parent / "calculators").absolute()
 sys.path.insert(0, str(calc_module_path))
@@ -17,7 +22,6 @@ CALC_MODULE_PATH = Path(__file__).parent.parent / "calculators"
 sys.path.append(str(CALC_MODULE_PATH))
 FAIR_CALCULATOR = CALC_MODULE_PATH / "calc_fair.py"
 TEST_DATA_DIR = Path(__file__).parent / "data"
-
 
 
 # def test_agil_i_score():

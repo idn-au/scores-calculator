@@ -32,8 +32,16 @@ from rdflib.term import Node
 
 from calculators._SCORES import SCORES
 from calculators.functions import searchable_score
-from calculators.parser import _create_parser, _load_input_graph, _bind_extra_prefixes, _create_observation_group, \
-    _create_observation, _forward_chain_dcat, _get_valid_output_dir, _get_valid_output_file_and_type
+from calculators.parser import (
+    _create_parser,
+    _load_input_graph,
+    _bind_extra_prefixes,
+    _create_observation_group,
+    _create_observation,
+    _forward_chain_dcat,
+    _get_valid_output_dir,
+    _get_valid_output_file_and_type,
+)
 
 QB = Namespace("http://purl.org/linked-data/cube#")
 
@@ -51,8 +59,7 @@ EXTRA_PREFIXES = {
 
 
 def calculate_care_c(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """
-    """
+    """ """
     c_value = 0
     c1_score = calculate_care_c1(metadata, resource)
     c_value += c1_score
@@ -129,7 +136,6 @@ def calculate_care_c2(metadata: Graph, resource: URIRef, c1_score) -> int:
         c2_value += 1
 
 
-
 def calculate_c1_accessible(metadata: Graph, resource: URIRef):
     """Data is accessible (restrictions can apply) (Access Rights exist,+1)"""
     if any(metadata.objects(resource, DCTERMS.accessRights)):
@@ -138,22 +144,19 @@ def calculate_c1_accessible(metadata: Graph, resource: URIRef):
 
 
 def calculate_care_a(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """
-    """
+    """ """
     a_value = 0
     return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
 
 
 def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """
-    """
+    """ """
     r_value = 0
     return _create_observation(score_container, SCORES.careRScore, Literal(r_value))
 
 
 def calculate_care_e(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """
-    """
+    """ """
     e_value = 0
     return _create_observation(score_container, SCORES.careEScore, Literal(e_value))
 
@@ -184,9 +187,9 @@ def calculate_care_per_resource(g: Graph) -> Graph:
 
 
 def main(
-        input: Union[Path, str, Graph],
-        output: Optional[str] = "text/turtle",
-        validate: bool = False,
+    input: Union[Path, str, Graph],
+    output: Optional[str] = "text/turtle",
+    validate: bool = False,
 ):
     """The main function of this module. Accepts a path to an RDF file, a URL leading to RDF or an RDFLib graph
     as input and returns either an RDFLib Graph object, an RDF stream in the given format or writes RDF to a file with

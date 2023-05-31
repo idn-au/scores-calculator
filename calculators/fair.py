@@ -31,10 +31,23 @@ from rdflib.namespace import DCAT, DCTERMS, PROV, RDF
 from rdflib.term import Node
 
 from calculators._SCORES import SCORES
-from calculators.functions import machine_readability_score, shared_vocabs_ontologies, licensing_score, \
-    provenance_score, data_source_score
-from calculators.parser import _create_parser, _load_input_graph, _bind_extra_prefixes, _create_observation_group, \
-    _create_observation, _forward_chain_dcat, _get_valid_output_dir, _get_valid_output_file_and_type
+from calculators.functions import (
+    machine_readability_score,
+    shared_vocabs_ontologies,
+    licensing_score,
+    provenance_score,
+    data_source_score,
+)
+from calculators.parser import (
+    _create_parser,
+    _load_input_graph,
+    _bind_extra_prefixes,
+    _create_observation_group,
+    _create_observation,
+    _forward_chain_dcat,
+    _get_valid_output_dir,
+    _get_valid_output_file_and_type,
+)
 
 QB = Namespace("http://purl.org/linked-data/cube#")
 
@@ -203,44 +216,44 @@ def calculate_a(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
 
 def calculate_i(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
     """
-        ... describe function inputs/outputs ...
+    ... describe function inputs/outputs ...
 
-        I score notes:
-        I1. (meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
-        I2. (meta)data use vocabularies that follow FAIR principles.
-        I3. (meta)data include qualified references to other (meta)data.
+    I score notes:
+    I1. (meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
+    I2. (meta)data use vocabularies that follow FAIR principles.
+    I3. (meta)data include qualified references to other (meta)data.
 
-        additionally ..
+    additionally ..
 
-        3. Data Objects can be Interoperable only if:
-        3.1. (Meta) data is machine-actionable [8]
-            [8] in eScience, machine-readability of data is imminent. Metadata being machine readable is a conditio sine qua
-             non for FAIRness. Having the actual data elements also machine-readable will make the Data Object of a higher
-             level of interoperability and makes functional interlinking and analysis in broader context much easier, but it
-             is not a pre-condition for FAIR data publishing. Some data elements, for instance images and ‘raw data’ can not
-             always be made machine-processable. Being published with FAIR metadata is of very high value in its own right.
+    3. Data Objects can be Interoperable only if:
+    3.1. (Meta) data is machine-actionable [8]
+        [8] in eScience, machine-readability of data is imminent. Metadata being machine readable is a conditio sine qua
+         non for FAIRness. Having the actual data elements also machine-readable will make the Data Object of a higher
+         level of interoperability and makes functional interlinking and analysis in broader context much easier, but it
+         is not a pre-condition for FAIR data publishing. Some data elements, for instance images and ‘raw data’ can not
+         always be made machine-processable. Being published with FAIR metadata is of very high value in its own right.
 
-        3.2. (Meta) data formats utilize shared vocabularies and/or ontologies [9]
-            [9] When the use of community adopted and public terminology systems is not possible, for instance for reasons
-            described in explanatory note 5, or because the Data Objects contain concepts that have not yet been described
-            in any public vocabulary or ontology known to the provider, the provider should nevertheless try to create a
-            term vocabulary of their own and publish it publicly and openly, preferably in a machine-readable form. The
-            vocabulary or ontology that constrains each constrained data field should be unambiguously identified either by
-            the field itself or by the associated Data Object metadata. For non-constrained fields, whenever possible the
-            value-type of the field should be annotated using a publicly-accessible vocabulary or ontology. This annotation
-            should be clear in the Data Object metadata.
+    3.2. (Meta) data formats utilize shared vocabularies and/or ontologies [9]
+        [9] When the use of community adopted and public terminology systems is not possible, for instance for reasons
+        described in explanatory note 5, or because the Data Objects contain concepts that have not yet been described
+        in any public vocabulary or ontology known to the provider, the provider should nevertheless try to create a
+        term vocabulary of their own and publish it publicly and openly, preferably in a machine-readable form. The
+        vocabulary or ontology that constrains each constrained data field should be unambiguously identified either by
+        the field itself or by the associated Data Object metadata. For non-constrained fields, whenever possible the
+        value-type of the field should be annotated using a publicly-accessible vocabulary or ontology. This annotation
+        should be clear in the Data Object metadata.
 
-        3.3  (Meta) data within the Data Object should thus be both syntactically parseable and semantically
-        machine-accessible [10]
-            [10] Both syntax and semantics of data models and formats used for (Meat) data in Data Objects should be easy to
-            identify and use, parse or translate by machines. As in the case of identifier schemes and vocabularies, a wide
-            variety of data formats (ranging from URI-featuring spread-sheets such as RightField or OntoMaton to rich RDF) can
-            be principally FAIR. It is obvious that any parsing and translation protocol is error-prone and the ideal situation
-            is to restrict FAIR data publishing to as few community adopted formats and standards as possible. However, if a
-            provider can prove that an alternative data model/format is unambiguously parsable to one of the community adopted
-            FAIR formats, there is no particular reason why such a format could not be considered FAIR. Some data types may
-            simply be not ‘capturable’ in one of the existing formats, and in that case maybe only part of the data elements can
-            be parsed. FAIRports will increasingly offer guidance and assistance in such cases.
+    3.3  (Meta) data within the Data Object should thus be both syntactically parseable and semantically
+    machine-accessible [10]
+        [10] Both syntax and semantics of data models and formats used for (Meat) data in Data Objects should be easy to
+        identify and use, parse or translate by machines. As in the case of identifier schemes and vocabularies, a wide
+        variety of data formats (ranging from URI-featuring spread-sheets such as RightField or OntoMaton to rich RDF) can
+        be principally FAIR. It is obvious that any parsing and translation protocol is error-prone and the ideal situation
+        is to restrict FAIR data publishing to as few community adopted formats and standards as possible. However, if a
+        provider can prove that an alternative data model/format is unambiguously parsable to one of the community adopted
+        FAIR formats, there is no particular reason why such a format could not be considered FAIR. Some data types may
+        simply be not ‘capturable’ in one of the existing formats, and in that case maybe only part of the data elements can
+        be parsed. FAIRports will increasingly offer guidance and assistance in such cases.
     """
     i_value = 0
     # 3.1 is the *data* machine-readable?
@@ -277,7 +290,7 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
         human effort) linked or integrated, like-with-like, with other data sources [11 and JDDCP 7 and JDDCP 8]
         4.3 Published Data Objects should refer to their sources with rich enough metadata and provenance to enable
         proper citation (ref to JDDCP 1-3).
-        
+
     JDDCP 1-3:
         1. Importance
         Data should be considered legitimate, citable products of research. Data citations should be accorded the same
@@ -292,13 +305,13 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     to score them again here (?).
     """
     r_value = 0
-    #R1.1. "(meta)data are released with a clear and accessible data usage license."
+    # R1.1. "(meta)data are released with a clear and accessible data usage license."
     r_value += licensing_score(metadata, resource)
-    #R1.2. "(meta)data are associated with their provenance."
+    # R1.2. "(meta)data are associated with their provenance."
     # Assume provenance is declared through the use of a standard set of properties, such those in the provenance
     # ontology
     r_value += provenance_score(metadata, resource)
-    #R1.3. "(meta)data meet domain-relevant community standards."
+    # R1.3. "(meta)data meet domain-relevant community standards."
     # interpreted as referring to 4.3, which in turn refers to JDDCP 1-3.
     # This has been interpreted that, if a dcterms:source is declared, it should ideally be a URI,
     # and additional provenance information for it should exist.
