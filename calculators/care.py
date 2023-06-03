@@ -26,9 +26,9 @@ from typing import Optional, Union
 
 import httpx
 from pyshacl import validate as val
-from rdflib import Graph, URIRef, Namespace, Literal, DCTERMS
+from rdflib import Graph, URIRef, Namespace, Literal, DCTERMS, PROV, RDFS, SKOS
 from rdflib.namespace import DCAT, RDF
-from rdflib.term import Node
+from rdflib.term import Node, BNode
 
 from calculators._SCORES import SCORES
 from calculators.functions import searchable_score
@@ -67,7 +67,9 @@ EXTRA_PREFIXES = {
 }
 
 
-def calculate_care_c(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
+def calculate_care_c(
+    metadata: Graph, resource: URIRef, score_container: Node, val_only=False
+) -> Graph | int:
     """Collective benefit
 
     Data ecosystems shall be designed and function in ways that enable Indigenous Peoples to derive benefit from the
@@ -78,7 +80,9 @@ def calculate_care_c(metadata: Graph, resource: URIRef, score_container: Node) -
     c2_score = calculate_care_c2(metadata, resource, c1_score)
     c_value += c2_score
     c_value += calculate_care_c3(metadata, resource, c2_score)
-    return _create_observation(score_container, SCORES.careCScore, Literal(c_value))
+    if not val_only:
+        return _create_observation(score_container, SCORES.careCScore, Literal(c_value))
+    return c_value
 
 
 def calculate_care_c1(metadata: Graph, resource: URIRef) -> int:
@@ -183,7 +187,9 @@ def calculate_c1_accessible(metadata: Graph, resource: URIRef):
     return 0
 
 
-def calculate_care_a(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
+def calculate_care_a(
+    metadata: Graph, resource: URIRef, score_container: Node, val_only=False
+) -> Graph | int:
     """Authority to control
 
     Indigenous Peoples’ rights and interests in Indigenous data must be recognised and their authority to control such
@@ -191,7 +197,15 @@ def calculate_care_a(metadata: Graph, resource: URIRef, score_container: Node) -
     Indigenous Peoples, as well as Indigenous lands, territories, resources, knowledges and geographical indicators, are
     represented and identified within data."""
     a_value = 0
-    return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
+    a1_score = calculate_care_a1(metadata, resource)
+    a_value += a1_score
+    a2_score = calculate_care_a2(metadata, resource, a1_score)
+    a_value += a2_score
+    a3_score = calculate_care_a3(metadata, resource, a2_score)
+    a_value += a3_score
+    if not val_only:
+        return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
+    return a_value
 
 
 def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
@@ -236,20 +250,201 @@ def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
     return 0
 
 
-def calculate_care_a2(metadata: Graph, resource: URIRef) -> int:
-    ...
+def calculate_care_a2(metadata: Graph, resource: URIRef, a1_score) -> int:
+    """Data for governance
+
+    Indigenous Peoples have the right to data that are relevant to their world views and empower self-determination and
+    effective self-governance. Indigenous data must be made available and accessible to Indigenous nations and
+    communities in order to support Indigenous governance.
+
+    The Institutional Data Catalogue is informed by an Indigenous Data Governance framework [Data Governance Framework
+    is catalogued and associated with the metadata records (+2)] and
+    has applied Institutional discovery/attribution Notices.[A1>0, +1]
+    """
+    a2_score = 0
+    # Assume the "informed by" is recorded as "prov:wasInfluencedBy"
+    influenced_records = metadata.objects(resource, PROV.wasInfluenceBy)
+    # check if any of the influenced records have a label with "governance" or "framework" in it.
+    for record in influenced_records:
+        labels = metadata.triples_choices(
+            (record, [RDFS.label, DCTERMS.title, SKOS.prefLabel], None)
+        )
+        for label in labels:
+            if "governance" in label[2].lower() or "framework" in label[2].lower():
+                a2_score += 2
+    if a1_score > 0:
+        a2_score += 1
+    return a2_score
+
+
+def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
+    """Governance of data
+
+    Indigenous Peoples have the right to develop cultural governance protocols for Indigenous data and be active leaders
+    in the stewardship of, and access to, Indigenous data especially in the context of Indigenous Knowledge.
+
+    The Institutional Data Catalogue is informed by an Indigenous Data Governance framework [A2.1>0, and…] with an
+    identified Indigenous Data Steward and/or Data Custodian.
+    [...IDN Role Codes have Agents+ Organisations Indigeneity NOT EQUAL TO Non-Indigenous OR Indigeneity Unknown] (+3)
+    """
+    a32_score = calculate_a32_score(metadata, resource)
+    if a2_score > 1 and a32_score:
+        return 3
+
+
+def calculate_a32_score(metadata: Graph, resource: URIRef):
+    ORG_INDIG = Namespace("https://data.idnau.org/pid/vocab/org-indigeneity/")
+    IND_INDIG = Namespace("https://data.idnau.org/pid/vocab/indigeneity/")
+    org_role_codes = [
+        ORG_INDIG["owned-by-indigenous-persons"],
+        ORG_INDIG["indigenous-persons-organisation"],
+        ORG_INDIG["run-by-indigenous-persons"],
+    ]
+    ind_role_codes = [
+        IND_INDIG["about-indigenous-people"],
+        IND_INDIG["about-indigenous-things"],
+        IND_INDIG["by-indigenous-people"],
+    ]
+    qualified_attribution_bns = metadata.objects(resource, PROV.qualifiedAttribution)
+    for qabn in qualified_attribution_bns:
+        for role in metadata.objects(qabn, DCAT.hadRole):
+            if role in org_role_codes or role in ind_role_codes:
+                return True
+    return False
 
 
 def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """ """
+    """
+    Those working with Indigenous data have a responsibility to share how those data are used to support Indigenous
+    Peoples’ self determination and collective benefit. Accountability requires meaningful and openly available evidence
+    of these efforts and the benefits accruing to Indigenous Peoples.
+
+    """
     r_value = 0
+    r1_value = calculate_r1(metadata, resource)
+    r_value += r1_value
+    r3_value = calculate_r2(metadata, resource)
+    r_value += r3_value
     return _create_observation(score_container, SCORES.careRScore, Literal(r_value))
 
 
+def calculate_r1(metadata: Graph, resource: URIRef):
+    """
+    For positive relationships
+
+    Indigenous data use is unviable unless linked to relationships built on respect, reciprocity, trust, and mutual
+    understanding, as defined by the Indigenous Peoples to whom those data relate. Those working with Indigenous data
+    are responsible for ensuring that the creation, interpretation, and use of those data uphold, or are respectful of,
+    the dignity of Indigenous nations and communities.
+
+    [A1.1>0, and A1.2>2, and A3.2>0, +3]
+    """
+    a11_value = calculate_a11_notices(metadata, resource)
+    a12_value = calculate_a12_licence_rights(metadata, resource)
+    a32_value = calculate_a32_score(metadata, resource)
+    if a11_value > 0 and a12_value > 2 and a32_value:
+        return 3
+    return 0
+
+
+def calculate_r2(metadata: Graph, resource: URIRef) -> int:
+    """
+    For expanding capability and capacity
+
+    Use of Indigenous data invokes a reciprocal responsibility to enhance data literacy within Indigenous communities
+    and to support the development of an Indigenous data workforce and digital infrastructure to enable the creation,
+    collection, management, security, governance, and application of data.
+    """
+    # TODO - documentation has strikethrough?
+    pass
+
+
+def calculate_r3(metadata: Graph, resource: URIRef) -> int:
+    """
+    For Indigenous languages and worldviews
+    Resources must be provided to generate data grounded in the languages, worldviews, and lived experiences (including
+    values and principles) of Indigenous Peoples.
+
+    The Institutional Data Catalogue is informed by an Indigenous Data Governance framework
+    with an identified Indigenous Custodian
+    working with the ID Steward.
+    Provenance, Protocols and Permissions labels have been negotiated and applied.
+    [R3 = C>6 AND A>7, +3]
+    """
+    r3_value = calculate_r3(metadata, resource)
+    a_value = calculate_care_a(metadata, resource, BNode(), val_only=True)
+    if r3_value > 6 and a_value > 7:
+        return 3
+    return 0
+
+
 def calculate_care_e(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
-    """ """
+    """
+    Ethics
+
+    Indigenous Peoples’ rights and wellbeing should be the primary concern at all stages of the data life cycle and
+    across the data ecosystem
+    """
     e_value = 0
+    e1_value = calculate_e1(metadata, resource)
+    e_value += e1_value
     return _create_observation(score_container, SCORES.careEScore, Literal(e_value))
+
+
+def calculate_e1(metadata: Graph, resource: URIRef) -> int:
+    """For minimizing harm and maximizing benefit
+
+    Ethical data are data that do not stigmatize or portray Indigenous Peoples, cultures, or knowledges in terms of
+    deficit. Ethical data are collected and used in ways that align with Indigenous ethical frameworks and with rights
+    affirmed in UNDRIP. Assessing ethical benefits and harms should be done from the perspective of the Indigenous
+    Peoples, nations, or communities to whom the data relate.
+
+    (Ethical (re)) Use of the data are clearly defined and accessible. [C>7, A1>3, A2>1, +3]
+    """
+    c_value = calculate_care_c(metadata, resource, BNode(), val_only=True)
+    a1_value = calculate_care_a1(metadata, resource)
+    a2_value = calculate_care_a2(metadata, resource, a1_value)
+    if c_value > 7 and a1_value > 3 and a2_value > 1:
+        return 3
+    return 0
+
+
+def calculate_e2(metadata: Graph, resource: URIRef) -> int:
+    """
+    For justice
+
+    Ethical processes address imbalances in power, resources, and how these affect the expression of Indigenous rights
+    and human rights. Ethical processes must include representation from relevant Indigenous communities.
+
+    Ethical (re)use of the data are clearly defined, accessible and
+    have an Indigenous Data Steward or Custodian identified.[E1>2, A3.2>1, +3]
+    """
+    e1_value = calculate_e1(metadata, resource)
+    a32_value = calculate_a32_score(metadata, resource)
+    if e1_value > 2 and a32_value:
+        return 3
+    return 0
+
+def calculate_e3(metadata: Graph, resource: URIRef) -> int:
+    """
+    For future use
+
+    Data governance should take into account the potential future use and future harm based on ethical frameworks
+    grounded in the values and principles of the relevant Indigenous community. Metadata should acknowledge the
+    provenance and purpose and any limitations or obligations in secondary use inclusive of issues of consent.
+
+    Ethical (re)use of the data are clearly defined and
+     have an Indigenous Steward or Custodian identified
+     within an identified Indigenous Data Governance Framework.
+    Provenance, Protocols and Permissions labels have been negotiated and applied.
+    [E2>2, A2>1, A1>2, +3]
+    """
+    e2_value = calculate_e2(metadata, resource)
+    a1_value = calculate_care_a1(metadata, resource)
+    a2_value = calculate_care_a2(metadata, resource, a1_value)
+    if e2_value > 2 and a1_value > 2 and a2_value > 1:
+        return 3
+    return 0
 
 
 def calculate_care(g: Graph, resource: URIRef) -> Graph:
