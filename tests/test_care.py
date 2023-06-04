@@ -16,7 +16,9 @@ CARE_CALCULATOR = CALC_MODULE_PATH / "care.py"
 TEST_DATA_DIR = Path(__file__).parent / "data"
 
 test_g = Graph().parse(str(TEST_DATA_DIR / "care_test_data.ttl"), format="turtle")
-resource = URIRef("https://raw.githubusercontent.com/idn-au/catalogue-data/main/data/catalogues/democat/AAC-SA.ttl")
+resource = URIRef(
+    "https://raw.githubusercontent.com/idn-au/catalogue-data/main/data/catalogues/democat/AAC-SA.ttl"
+)
 
 
 def test_calculate_c1_discoverable():
@@ -33,9 +35,11 @@ def test_calculate_c1_accessible():
     result = calculate_c1_accessible(test_g, resource)
     assert result == 1
 
+
 def test_calculate_a11_notices():
     result = calculate_a11_notices(test_g, resource)
     assert result == 1
+
 
 def test_calculate_care_c2():
     result = calculate_care_c2(test_g, resource, c1_score=3)
@@ -48,6 +52,7 @@ def test_calculate_care_c2():
 def test_calculate_care_c3():
     result = calculate_care_c3(test_g, resource, c2_score=3)
     assert result == 3
+
 
 def test_calculate_a11_notices_2():
     result = calculate_a12_licence_rights(test_g, resource)
@@ -102,6 +107,3 @@ def test_calculate_e3():
 
 def test_calculate_care():
     calculate_care(test_g, resource)
-
-
-

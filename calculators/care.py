@@ -235,15 +235,15 @@ def calculate_a11_notices(metadata: Graph, resource: URIRef):
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
     IN = Namespace("http://data.idnau.org/pid/vocab/lc-in/")
     ODRL = Namespace("http://www.w3.org/ns/odrl/2/")
-    if any(metadata.triples((resource, PROV.wasAttributedTo, IN["attribution-incomplete"]))) \
-            or any(metadata.triples((resource, ODRL.hasPolicy, IN["open-to-collaborate"]))):
+    if any(
+        metadata.triples((resource, PROV.wasAttributedTo, IN["attribution-incomplete"]))
+    ) or any(metadata.triples((resource, ODRL.hasPolicy, IN["open-to-collaborate"]))):
         return 1
     return 0
 
 
 def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
-    """A1.2      Licence, Rights and Access Rights are complete, +2
-"""
+    """A1.2      Licence, Rights and Access Rights are complete, +2"""
     if (
         any(metadata.objects(resource, DCTERMS.rights))
         and any(metadata.objects(resource, DCTERMS.license))
@@ -326,7 +326,7 @@ def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -
     r_value = 0
     r1_value = calculate_r1(metadata, resource)
     r_value += r1_value
-    r2_value = calculate_r3(metadata, resource)
+    r2_value = calculate_r2(metadata, resource)
     r_value += r2_value
     r3_value = calculate_r3(metadata, resource)
     r_value += r3_value
@@ -431,6 +431,7 @@ def calculate_e2(metadata: Graph, resource: URIRef) -> int:
     if e1_value > 2 and a32_value:
         return 3
     return 0
+
 
 def calculate_e3(metadata: Graph, resource: URIRef) -> int:
     """
