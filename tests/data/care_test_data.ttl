@@ -1,0 +1,31 @@
+@prefix croles: <https://data.idnau.org/pid/vocab/cat-roles/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix in: <http://data.idnau.org/pid/vocab/lc-in/> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix lc: <https://localcontexts.org/notices/> .
+@prefix org-indig: <https://data.idnau.org/pid/vocab/org-indigeneity/> .
+@prefix ind-indig: <https://data.idnau.org/pid/vocab/indigeneity/> .
+
+<https://raw.githubusercontent.com/idn-au/catalogue-data/main/data/catalogues/democat/AAC-SA.ttl>
+  a dcat:Dataset ;
+  dcterms:title "Test dataset" ;
+  dcterms:description "This is a test dataset" ;
+  dcterms:isPartOf [ dcat:hadRole croles:home ; prov:entity <https://www.atsida.edu.au> ] ;  dcterms:accessRights <http://example.com/access> ;
+  dcat:distribution <http://example.com/distribution> ;
+  prov:wasInfluencedBy <http://example.com/governance-framework> ;
+  prov:wasAttributedTo in:attribution-incomplete ;
+  odrl:hasPolicy in:open-to-collaborate ;
+  dcterms:rights "Rights text" ;
+  dcterms:license "License text" ;
+  prov:qualifiedAttribution [ a prov:Attribution ;
+                              dcat:hadRole org-indig:owned-by-indigenous-persons ]
+.
+
+<http://example.com/governance-framework>
+  rdfs:label "Test governance framework" .
+

@@ -137,11 +137,11 @@ def calculate_care_c2(metadata: Graph, resource: URIRef, c1_score) -> int:
     Description exists, +1
     """
     c2_value = 0
-    if c1_score > 2:
+    if c1_score > 2 and calculate_c2_discoverable(metadata, resource) == 1:
         c2_value += 1
-    c2_value += calculate_c2_discoverable(metadata, resource)
     c2_value += any(metadata.objects(resource, DCTERMS.title))
     c2_value += any(metadata.objects(resource, DCTERMS.description))
+    return c2_value
 
 
 def calculate_care_c3(metadata: Graph, resource: URIRef, c2_score: int) -> int:
@@ -157,7 +157,8 @@ def calculate_care_c3(metadata: Graph, resource: URIRef, c2_score: int) -> int:
     be measured.
     """
     c3_value = 0
-    if c2_score > 3:
+    if c2_score > 2:
+        # TODO confirm if C2 score can be greater than 3 (currently what is specified) or maximum of 3.
         c3_value += 1
     c3_value += any(metadata.objects(resource, DCAT.distribution))
     # TODO determine how to measure equitable outcomes.
@@ -168,7 +169,10 @@ def calculate_c2_discoverable(metadata: Graph, resource: URIRef):
     """Metadata is discoverable (+1)"""
     catalogue = None
     for o in metadata.objects(resource, DCTERMS.isPartOf):
-        catalogue = str(o)
+        if isinstance(o, BNode):
+            catalogue = str(metadata.value(o, PROV.entity))
+        else:
+            catalogue = str(o)
     if catalogue is not None:
         x = httpx.get(
             catalogue,
@@ -229,18 +233,17 @@ def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
 def calculate_a11_notices(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
-    LC = Namespace("https://localcontexts.org/notices/")
-    if any(
-        metadata.objects(resource, LC["attribution-incomplete"])
-        or metadata.objects(resource, LC["open-to-collaborate"])
-    ):
+    IN = Namespace("http://data.idnau.org/pid/vocab/lc-in/")
+    ODRL = Namespace("http://www.w3.org/ns/odrl/2/")
+    if any(metadata.triples((resource, PROV.wasAttributedTo, IN["attribution-incomplete"]))) \
+            or any(metadata.triples((resource, ODRL.hasPolicy, IN["open-to-collaborate"]))):
         return 1
     return 0
 
 
 def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
-    """The Institutional Data Catalogue has applied Institutional discovery Notices.
-    [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
+    """A1.2      Licence, Rights and Access Rights are complete, +2
+"""
     if (
         any(metadata.objects(resource, DCTERMS.rights))
         and any(metadata.objects(resource, DCTERMS.license))
@@ -263,7 +266,7 @@ def calculate_care_a2(metadata: Graph, resource: URIRef, a1_score) -> int:
     """
     a2_score = 0
     # Assume the "informed by" is recorded as "prov:wasInfluencedBy"
-    influenced_records = metadata.objects(resource, PROV.wasInfluenceBy)
+    influenced_records = metadata.objects(resource, PROV.wasInfluencedBy)
     # check if any of the influenced records have a label with "governance" or "framework" in it.
     for record in influenced_records:
         labels = metadata.triples_choices(
@@ -323,7 +326,9 @@ def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -
     r_value = 0
     r1_value = calculate_r1(metadata, resource)
     r_value += r1_value
-    r3_value = calculate_r2(metadata, resource)
+    r2_value = calculate_r3(metadata, resource)
+    r_value += r2_value
+    r3_value = calculate_r3(metadata, resource)
     r_value += r3_value
     return _create_observation(score_container, SCORES.careRScore, Literal(r_value))
 
@@ -338,11 +343,12 @@ def calculate_r1(metadata: Graph, resource: URIRef):
     the dignity of Indigenous nations and communities.
 
     [A1.1>0, and A1.2>2, and A3.2>0, +3]
+    #TODO get spec updated - A1.2 has a maximum of 2, not 3, so condition should probably be >1, as below in code
     """
     a11_value = calculate_a11_notices(metadata, resource)
     a12_value = calculate_a12_licence_rights(metadata, resource)
     a32_value = calculate_a32_score(metadata, resource)
-    if a11_value > 0 and a12_value > 2 and a32_value:
+    if a11_value > 0 and a12_value > 1 and a32_value:
         return 3
     return 0
 
@@ -356,7 +362,7 @@ def calculate_r2(metadata: Graph, resource: URIRef) -> int:
     collection, management, security, governance, and application of data.
     """
     # TODO - documentation has strikethrough?
-    pass
+    return 0
 
 
 def calculate_r3(metadata: Graph, resource: URIRef) -> int:
@@ -371,9 +377,9 @@ def calculate_r3(metadata: Graph, resource: URIRef) -> int:
     Provenance, Protocols and Permissions labels have been negotiated and applied.
     [R3 = C>6 AND A>7, +3]
     """
-    r3_value = calculate_r3(metadata, resource)
+    c_value = calculate_care_c(metadata, resource, BNode(), val_only=True)
     a_value = calculate_care_a(metadata, resource, BNode(), val_only=True)
-    if r3_value > 6 and a_value > 7:
+    if c_value > 6 and a_value > 7:
         return 3
     return 0
 
@@ -404,7 +410,8 @@ def calculate_e1(metadata: Graph, resource: URIRef) -> int:
     c_value = calculate_care_c(metadata, resource, BNode(), val_only=True)
     a1_value = calculate_care_a1(metadata, resource)
     a2_value = calculate_care_a2(metadata, resource, a1_value)
-    if c_value > 7 and a1_value > 3 and a2_value > 1:
+    # TODO confirm if a1_value CAN be greater than 3 (current spec) or if it should be >2, as in code, as the maximum value is 3.
+    if c_value > 7 and a1_value > 2 and a2_value > 1:
         return 3
     return 0
 
