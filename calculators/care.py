@@ -234,10 +234,9 @@ def calculate_a11_notices(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
     IN = Namespace("http://data.idnau.org/pid/vocab/lc-in/")
-    ODRL = Namespace("http://www.w3.org/ns/odrl/2/")
     if any(
-        metadata.triples((resource, PROV.wasAttributedTo, IN["attribution-incomplete"]))
-    ) or any(metadata.triples((resource, ODRL.hasPolicy, IN["open-to-collaborate"]))):
+        metadata.triples((resource, None, IN["attribution-incomplete"]))
+    ) or any(metadata.triples((resource, None, IN["open-to-collaborate"]))):
         return 1
     return 0
 
