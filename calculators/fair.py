@@ -21,20 +21,33 @@ options:
                         Validate the input with the IDN CP's validator before trying to
                         score it
 """
-import argparse
-import os
 from pathlib import Path
-from typing import Optional, Union, Tuple
+from typing import Optional, Union
 
 import httpx
 from pyshacl import validate as val
-from rdflib import Graph, URIRef, BNode, Namespace, Literal
-from rdflib.namespace import DCAT, DCTERMS, PROV, RDF, TIME
+from rdflib import Graph, URIRef, Namespace, Literal
+from rdflib.namespace import DCAT, DCTERMS, PROV, RDF
 from rdflib.term import Node
 
 from calculators._SCORES import SCORES
-from calculators.functions import machine_readability_score, shared_vocabs_ontologies, licensing_score, \
-    provenance_score, data_source_score
+from calculators.functions import (
+    machine_readability_score,
+    shared_vocabs_ontologies,
+    licensing_score,
+    provenance_score,
+    data_source_score,
+)
+from calculators.parser import (
+    _create_parser,
+    _load_input_graph,
+    _bind_extra_prefixes,
+    _create_observation_group,
+    _create_observation,
+    _forward_chain_dcat,
+    _get_valid_output_dir,
+    _get_valid_output_file_and_type,
+)
 
 QB = Namespace("http://purl.org/linked-data/cube#")
 
@@ -49,174 +62,6 @@ EXTRA_PREFIXES = {
     "scores": SCORES,
     "qb": QB,
 }
-
-
-def _create_parser():
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument(
-        "input",
-        help="The path of an RDF file or URL of RDF data online.",
-    )
-
-    parser.add_argument(
-        "-o",
-        "--output",
-        help="A path for an output file or an output format. If set to a file path, the output will be written to "
-        "the file, rather than returned to standard out. If a format is given, that format will be returned to. "
-        "standard out. For a given output file path, the file extension determines the format and must be one "
-        f"of {', '.join(RDF_FILE_SUFFIXES.keys())} for Turtle, RDF/XML, JSON-LD or N-Ttripes. "
-        f"If a format is given, it must be one of {', '.join(RDF_FILE_SUFFIXES.values())}",
-        default="text/turtle",
-    )
-
-    parser.add_argument(
-        "-v",
-        "--validate",
-        help="Validate the input with the IDN CP's validator before trying to score it",
-        default=False,
-    )
-
-    return parser
-
-
-def _output_is_format(s: str):
-    """Checks to see if a string is a known format or a graph"""
-
-    if s in RDF_FILE_SUFFIXES.keys() or s == "graph":
-        return True
-    else:
-        return False
-
-
-def _get_valid_output_dir(path: Path):
-    """Checks that a specified output directory is an existing directory and returns the directory if valid"""
-
-    if not os.path.isdir(path.parent):
-        raise argparse.ArgumentTypeError(
-            f"The output path you specified, {path}, does not indicate a valid directory"
-        )
-
-    return path.parent
-
-
-def _get_valid_output_file_and_type(path: Path):
-    """Checks that a specified output file has a known file type extension and returns it and the corresponding
-    RDF Media Type if it is"""
-
-    known_file_types = [".ttl", ".rdf", ".json-ld", ".nt"]
-    if path.suffix not in known_file_types:
-        raise argparse.ArgumentTypeError(
-            f"The output path you specified, {path}, does not specify a known file type. "
-            f"It must be one of {', '.join(known_file_types)}"
-        )
-
-    return path.name, RDF_FILE_SUFFIXES[path.suffix]
-
-
-def _input_is_a_file(s: str):
-    """Checks if a string is a path to an existing file"""
-
-    if Path(s).is_file():
-        return True
-    else:
-        return False
-
-
-def _load_input_graph(path_or_url: Union[Path, str]) -> Graph:
-    """Parses a file at the path location or download the data from a given URL and returns an RDFLib Graph"""
-
-    g = Graph()
-    if _input_is_a_file(path_or_url):
-        g.parse(path_or_url)
-    else:
-        d = httpx.get(path_or_url, follow_redirects=True)
-        g.parse(data=d.text, format=d.headers["Content-Type"].split(";")[0])
-
-    return g
-
-
-def _forward_chain_dcat(g: Graph):
-    """Builds out a DCAT graph with RDFS & OWL rules.
-
-    Only builds as necessary for scoring, i.e. not a complete RDFS or OWL inference"""
-    for s in g.subjects(RDF.type, DCAT.Dataset):
-        g.add((s, RDF.type, DCAT.Resource))
-
-    for s, o in g.subject_objects(DCTERMS.isPartOf):
-        g.add((o, DCTERMS.hasPart, s))
-
-    for s, o in g.subject_objects(DCTERMS.hasPart):
-        g.add((o, DCTERMS.isPartOf, s))
-
-
-def _bind_extra_prefixes(g: Graph, prefixes: dict):
-    for k, v in prefixes.items():
-        g.bind(k, v)
-
-
-def _create_observation_group(
-    resource: URIRef,
-    score_class: URIRef,
-    beginning: Optional[Literal] = None,
-    end: Optional[Literal] = None,
-) -> Tuple[Node, Graph]:
-    """Creates a Score (ObservationGroup) object to hold multiple Score Dimension measured values (Observations)
-
-    :param resource: The catalogued Resource being scored
-    :param score_class: The class of the Score, e.g. scores:FairScore
-    :param beginning: A date from which this Score is relevant
-    :param end: A date until which this score was relevant
-    :return: The ID of the Score and the Score total Graph
-    """
-    g = Graph()
-
-    g.add((resource, RDF.type, DCAT.Resource))
-    score = BNode()
-    g.add((resource, SCORES.hasScore, score))
-    g.add((score, RDF.type, score_class))
-    g.add((score, RDF.type, QB.ObservationGroup))
-    g.add((score, SCORES.refResource, resource))
-
-    if beginning is not None or end is not None:
-        t = BNode()
-        # TODO: decide on the type of Temporal Entity here
-        g.add((t, RDF.type, TIME.ProperInterval))
-        g.add((score, SCORES.refTime, t))
-
-        if beginning is not None:
-            b = BNode()
-            g.add((b, RDF.type, TIME.Instant))
-            g.add((b, TIME.inXSDDate, beginning))
-            g.add((t, TIME.hasBeginning, b))
-        if end is not None:
-            e = BNode()
-            g.add((e, RDF.type, TIME.Instant))
-            g.add((e, TIME.inXSDDate, end))
-            g.add((t, TIME.hasEnd, e))
-
-    return score, g
-
-
-def _create_observation(
-    score_container: Node, score_property: URIRef, score_value: Union[URIRef, Literal]
-) -> Graph:
-    """Creates the Observation RDF container for a Score's value for a Resource
-
-    :param resource: the catalogued resource being scored
-    :param score_container: the overall Score object (e.g. FAIR for F dimension)
-    :param score_property: the Scores Ontology qb:MeasureProperty that defines this score dimension, e.g. scores:fairFScore
-    :param score_value: the value of this dimension of the score, e.g. 12 for "F" in FAIR
-    :return: a graph of the Observation
-    """
-    g = Graph()
-    obs = BNode()
-    g.add((obs, RDF.type, QB.Observation))
-    g.add((score_container, QB.observation, obs))
-
-    g.add((obs, score_property, score_value))
-
-    return g
 
 
 def calculate_f(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
@@ -371,44 +216,44 @@ def calculate_a(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
 
 def calculate_i(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
     """
-        ... describe function inputs/outputs ...
+    ... describe function inputs/outputs ...
 
-        I score notes:
-        I1. (meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
-        I2. (meta)data use vocabularies that follow FAIR principles.
-        I3. (meta)data include qualified references to other (meta)data.
+    I score notes:
+    I1. (meta)data use a formal, accessible, shared, and broadly applicable language for knowledge representation.
+    I2. (meta)data use vocabularies that follow FAIR principles.
+    I3. (meta)data include qualified references to other (meta)data.
 
-        additionally ..
+    additionally ..
 
-        3. Data Objects can be Interoperable only if:
-        3.1. (Meta) data is machine-actionable [8]
-            [8] in eScience, machine-readability of data is imminent. Metadata being machine readable is a conditio sine qua
-             non for FAIRness. Having the actual data elements also machine-readable will make the Data Object of a higher
-             level of interoperability and makes functional interlinking and analysis in broader context much easier, but it
-             is not a pre-condition for FAIR data publishing. Some data elements, for instance images and ‘raw data’ can not
-             always be made machine-processable. Being published with FAIR metadata is of very high value in its own right.
+    3. Data Objects can be Interoperable only if:
+    3.1. (Meta) data is machine-actionable [8]
+        [8] in eScience, machine-readability of data is imminent. Metadata being machine readable is a conditio sine qua
+         non for FAIRness. Having the actual data elements also machine-readable will make the Data Object of a higher
+         level of interoperability and makes functional interlinking and analysis in broader context much easier, but it
+         is not a pre-condition for FAIR data publishing. Some data elements, for instance images and ‘raw data’ can not
+         always be made machine-processable. Being published with FAIR metadata is of very high value in its own right.
 
-        3.2. (Meta) data formats utilize shared vocabularies and/or ontologies [9]
-            [9] When the use of community adopted and public terminology systems is not possible, for instance for reasons
-            described in explanatory note 5, or because the Data Objects contain concepts that have not yet been described
-            in any public vocabulary or ontology known to the provider, the provider should nevertheless try to create a
-            term vocabulary of their own and publish it publicly and openly, preferably in a machine-readable form. The
-            vocabulary or ontology that constrains each constrained data field should be unambiguously identified either by
-            the field itself or by the associated Data Object metadata. For non-constrained fields, whenever possible the
-            value-type of the field should be annotated using a publicly-accessible vocabulary or ontology. This annotation
-            should be clear in the Data Object metadata.
+    3.2. (Meta) data formats utilize shared vocabularies and/or ontologies [9]
+        [9] When the use of community adopted and public terminology systems is not possible, for instance for reasons
+        described in explanatory note 5, or because the Data Objects contain concepts that have not yet been described
+        in any public vocabulary or ontology known to the provider, the provider should nevertheless try to create a
+        term vocabulary of their own and publish it publicly and openly, preferably in a machine-readable form. The
+        vocabulary or ontology that constrains each constrained data field should be unambiguously identified either by
+        the field itself or by the associated Data Object metadata. For non-constrained fields, whenever possible the
+        value-type of the field should be annotated using a publicly-accessible vocabulary or ontology. This annotation
+        should be clear in the Data Object metadata.
 
-        3.3  (Meta) data within the Data Object should thus be both syntactically parseable and semantically
-        machine-accessible [10]
-            [10] Both syntax and semantics of data models and formats used for (Meat) data in Data Objects should be easy to
-            identify and use, parse or translate by machines. As in the case of identifier schemes and vocabularies, a wide
-            variety of data formats (ranging from URI-featuring spread-sheets such as RightField or OntoMaton to rich RDF) can
-            be principally FAIR. It is obvious that any parsing and translation protocol is error-prone and the ideal situation
-            is to restrict FAIR data publishing to as few community adopted formats and standards as possible. However, if a
-            provider can prove that an alternative data model/format is unambiguously parsable to one of the community adopted
-            FAIR formats, there is no particular reason why such a format could not be considered FAIR. Some data types may
-            simply be not ‘capturable’ in one of the existing formats, and in that case maybe only part of the data elements can
-            be parsed. FAIRports will increasingly offer guidance and assistance in such cases.
+    3.3  (Meta) data within the Data Object should thus be both syntactically parseable and semantically
+    machine-accessible [10]
+        [10] Both syntax and semantics of data models and formats used for (Meat) data in Data Objects should be easy to
+        identify and use, parse or translate by machines. As in the case of identifier schemes and vocabularies, a wide
+        variety of data formats (ranging from URI-featuring spread-sheets such as RightField or OntoMaton to rich RDF) can
+        be principally FAIR. It is obvious that any parsing and translation protocol is error-prone and the ideal situation
+        is to restrict FAIR data publishing to as few community adopted formats and standards as possible. However, if a
+        provider can prove that an alternative data model/format is unambiguously parsable to one of the community adopted
+        FAIR formats, there is no particular reason why such a format could not be considered FAIR. Some data types may
+        simply be not ‘capturable’ in one of the existing formats, and in that case maybe only part of the data elements can
+        be parsed. FAIRports will increasingly offer guidance and assistance in such cases.
     """
     i_value = 0
     # 3.1 is the *data* machine-readable?
@@ -445,7 +290,7 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
         human effort) linked or integrated, like-with-like, with other data sources [11 and JDDCP 7 and JDDCP 8]
         4.3 Published Data Objects should refer to their sources with rich enough metadata and provenance to enable
         proper citation (ref to JDDCP 1-3).
-        
+
     JDDCP 1-3:
         1. Importance
         Data should be considered legitimate, citable products of research. Data citations should be accorded the same
@@ -460,13 +305,13 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     to score them again here (?).
     """
     r_value = 0
-    #R1.1. "(meta)data are released with a clear and accessible data usage license."
+    # R1.1. "(meta)data are released with a clear and accessible data usage license."
     r_value += licensing_score(metadata, resource)
-    #R1.2. "(meta)data are associated with their provenance."
+    # R1.2. "(meta)data are associated with their provenance."
     # Assume provenance is declared through the use of a standard set of properties, such those in the provenance
     # ontology
     r_value += provenance_score(metadata, resource)
-    #R1.3. "(meta)data meet domain-relevant community standards."
+    # R1.3. "(meta)data meet domain-relevant community standards."
     # interpreted as referring to 4.3, which in turn refers to JDDCP 1-3.
     # This has been interpreted that, if a dcterms:source is declared, it should ideally be a URI,
     # and additional provenance information for it should exist.
@@ -519,6 +364,8 @@ def main(
 
     # build out input
     _forward_chain_dcat(g)
+
+    # TODO point to https://data.idnau.org/pid/cp/validator.ttl as validator.
 
     # validate
     if validate:

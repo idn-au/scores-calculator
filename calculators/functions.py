@@ -3,10 +3,14 @@ from typing import List
 
 from rdflib import Literal, DCTERMS, PROV, DCAT, RDFS, URIRef, Graph, XSD
 
-from reference_data.reference import \
-    properties_expected_to_have_objects_with_uris, \
-    machine_readable_formats_to_mime_types, \
-    properties_for_mediatypes_formats, data_usage_license_properties, additional_provenance_properties
+from reference_data.reference import (
+    properties_expected_to_have_objects_with_uris,
+    machine_readable_formats_to_mime_types,
+    properties_for_mediatypes_formats,
+    data_usage_license_properties,
+    additional_provenance_properties,
+    searchable_properties,
+)
 
 
 def machine_readability_score(metadata: Graph, resource: URIRef):
@@ -29,15 +33,21 @@ def machine_readability_score(metadata: Graph, resource: URIRef):
         if str(literal) in machine_readable_formats_to_mime_types.values():
             return 2
         elif str(literal) in machine_readable_formats_to_mime_types.keys():
-            value = 1  # don't return in case any other literal are a recognised mime type
+            value = (
+                1  # don't return in case any other literal are a recognised mime type
+            )
     return value
 
 
 def shared_vocabs_ontologies(metadata: Graph, resource: URIRef):
     """Check if the objects for the following properties are URIs.
     The assumption here is that if they use URIs, those URIs refer to a shared vocabularies and ontologies."""
-    object_types = [type(o) for s, p, o in
-                    metadata.triples_choices((resource, properties_expected_to_have_objects_with_uris, None))]
+    object_types = [
+        type(o)
+        for s, p, o in metadata.triples_choices(
+            (resource, properties_expected_to_have_objects_with_uris, None)
+        )
+    ]
     n_objects = len(object_types)
     if n_objects > 0:
         type_count = Counter(object_types)
@@ -63,7 +73,9 @@ def licensing_score(metadata: Graph, resource: URIRef):
         )
     ]
     value = 0
-    if len(license_literals) > 0:  # NB licenses should use a URI, but some use literals. Use of a URI can affect the
+    if (
+        len(license_literals) > 0
+    ):  # NB licenses should use a URI, but some use literals. Use of a URI can affect the
         # shared_vocabs_ontologies score under "Interoperatbility".
         value = 2
     return value
@@ -83,6 +95,7 @@ def provenance_score(metadata: Graph):
         return 2
     return 0
 
+
 def data_source_score(metadata: Graph, resource: URIRef):
     """Check if the resource has a data source, and if so, is provenance for the data source provided.
     If no data source is provided, a score of 2 is given.
@@ -90,11 +103,21 @@ def data_source_score(metadata: Graph, resource: URIRef):
     From the DCTERMS ontology for DCTERMS.source: "Best practice is to identify the related resource by means of a URI or a string
     conforming to a formal identification system."
     """
-    source_term = metadata.value(subject=resource, predicate=DCTERMS.source, object=None)
+    source_term = metadata.value(
+        subject=resource, predicate=DCTERMS.source, object=None
+    )
     if not source_term:
         return 0
     elif type(source_term) == URIRef:
         return 2
     elif type(source_term) == Literal and source_term.datatype == XSD.anyURI:
+        return 1
+    return 0
+
+
+def searchable_score(metadata: Graph):
+    """Check if the resource is searchable"""
+    all_props = set(metadata.predicates(subject=None, object=None))
+    if any([p for p in all_props if p in searchable_properties]):
         return 1
     return 0
