@@ -154,13 +154,17 @@ def calculate_f(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
             "application/n-quads",
             "application/rdf+xml",
         ]
-        x = httpx.get(
+        try:
+            x = httpx.get(
             catalogue,
             headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
             follow_redirects=True,
-        )
-        if x.is_success:
-            f_value += 2  # changed to maximum of four to align with calculator here https://github.com/au-research/FAIR-Data-Assessment-Tool
+            )
+            if x.is_success:
+                f_value += 2 # changed to maximum of four to align with calculator here https://github.com/au-research/FAIR-Data-Assessment-Tool
+        except httpx.HTTPError:
+            pass
+
 
     return _create_observation(score_container, SCORES.fairFScore, Literal(f_value))
 
@@ -347,6 +351,28 @@ def calculate_fair_per_resource(g: Graph) -> Graph:
     return scores
 
 
+def normalise_fair_scores(g: Graph) -> Graph:
+    """
+    Normalizes FAIR scores to a range between 0 and 1, where 0 is the lowest possible score and 1 is the highest
+    possible score.
+    """
+    for s in g.subjects(SCORES.hasScore, None):
+        og_node, og_graph = _create_observation_group(s, SCORES.FairScoreNormalised)
+        f_value = next(g.objects(subject=None, predicate=SCORES.fairFScore))
+        a_value = next(g.objects(subject=None, predicate=SCORES.fairAScore))
+        i_value = next(g.objects(subject=None, predicate=SCORES.fairIScore))
+        r_value = next(g.objects(subject=None, predicate=SCORES.fairRScore))
+        g += _create_observation(og_node, SCORES.fairFScoreNormalised, Literal(f"{int(f_value) / 17:.2f}"))
+        g += _create_observation(og_node, SCORES.fairAScoreNormalised, Literal(f"{int(a_value) / 10:.2f}"))
+        g += _create_observation(og_node, SCORES.fairIScoreNormalised, Literal(f"{int(i_value) / 8:.2f}"))
+        g += _create_observation(og_node, SCORES.fairRScoreNormalised, Literal(f"{int(r_value) / 7:.2f}"))
+        g.add((og_node, RDF.type, SCORES.FairScoreNormalised))
+        g.add((og_node, RDF.type, QB.ObservationGroup))
+        g.add((og_node, SCORES.refResource, s))
+        g.add((s, SCORES.hasScore, og_node))
+    return g
+
+
 def main(
     input: Union[Path, str, Graph],
     output: Optional[str] = "text/turtle",
@@ -378,6 +404,10 @@ def main(
 
     # calculate
     scores = calculate_fair_per_resource(g)
+
+    norm_scores = normalise_fair_scores(scores)
+
+    scores += norm_scores
 
     # generate output
     # std out

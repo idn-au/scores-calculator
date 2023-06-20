@@ -77,11 +77,11 @@ def calculate_care_c(
     Data ecosystems shall be designed and function in ways that enable Indigenous Peoples to derive benefit from the
     data."""
     c_value = 0
-    c1_score = calculate_care_c1(metadata, resource)
+    c1_score = calculate_care_c1(metadata, resource)  # max 3
     c_value += c1_score
-    c2_score = calculate_care_c2(metadata, resource, c1_score)
+    c2_score = calculate_care_c2(metadata, resource, c1_score)  # max 3
     c_value += c2_score
-    c_value += calculate_care_c3(metadata, resource, c2_score)
+    c_value += calculate_care_c3(metadata, resource, c2_score)  # max 2
     if not val_only:
         return _create_observation(score_container, SCORES.careCScore, Literal(c_value))
     return c_value
@@ -206,11 +206,11 @@ def calculate_care_a(
     Indigenous Peoples, as well as Indigenous lands, territories, resources, knowledges and geographical indicators, are
     represented and identified within data."""
     a_value = 0
-    a1_score = calculate_care_a1(metadata, resource)
+    a1_score = calculate_care_a1(metadata, resource)  # max 3
     a_value += a1_score
-    a2_score = calculate_care_a2(metadata, resource, a1_score)
+    a2_score = calculate_care_a2(metadata, resource, a1_score)  # max 3
     a_value += a2_score
-    a3_score = calculate_care_a3(metadata, resource, a2_score)
+    a3_score = calculate_care_a3(metadata, resource, a2_score)  # max 3
     a_value += a3_score
     if not val_only:
         return _create_observation(score_container, SCORES.careAScore, Literal(a_value))
@@ -347,11 +347,11 @@ def calculate_care_r(metadata: Graph, resource: URIRef, score_container: Node) -
 
     """
     r_value = 0
-    r1_value = calculate_r1(metadata, resource)
+    r1_value = calculate_r1(metadata, resource)  # max 3
     r_value += r1_value
-    r2_value = calculate_r2(metadata, resource)
+    r2_value = calculate_r2(metadata, resource)  # max 0
     r_value += r2_value
-    r3_value = calculate_r3(metadata, resource)
+    r3_value = calculate_r3(metadata, resource)  # max 6
     r_value += r3_value
     return _create_observation(score_container, SCORES.careRScore, Literal(r_value))
 
@@ -527,6 +527,26 @@ def calculate_care_per_resource(g: Graph) -> Graph:
 
     return scores
 
+def normalise_care_scores(g: Graph) -> Graph:
+    """ Normalizes CARE scores to a range between 0 and 1, where 0 is the lowest possible score and 1 is the highest"""
+    for s in g.subjects(SCORES.hasScore, None):
+        og_node, og_graph = _create_observation_group(s, SCORES.careScoreNormalised)
+        c_value = next(g.objects(subject=None, predicate=SCORES.careCScore))
+        a_value = next(g.objects(subject=None, predicate=SCORES.careAScore))
+        r_value = next(g.objects(subject=None, predicate=SCORES.careRScore))
+        e_value = next(g.objects(subject=None, predicate=SCORES.careEScore))
+        g += _create_observation(og_node, SCORES.careCScoreNormalised, Literal(f"{int(c_value) / 8:.2f}"))
+        g += _create_observation(og_node, SCORES.careAScoreNormalised, Literal(f"{int(a_value) / 9:.2f}"))
+        g += _create_observation(og_node, SCORES.careRScoreNormalised, Literal(f"{int(r_value) / 9:.2f}"))
+        g += _create_observation(og_node, SCORES.careEScoreNormalised, Literal(f"{int(e_value) / 3:.2f}"))
+        g.add((og_node, RDF.type, SCORES.careScoreNormalised))
+        g.add((og_node, RDF.type, QB.ObservationGroup))
+        g.add((og_node, SCORES.refResource, s))
+        g.add((s, SCORES.hasScore, og_node))
+    return g
+
+
+
 
 def main(
     input: Union[Path, str, Graph],
@@ -559,6 +579,10 @@ def main(
 
     # calculate
     scores = calculate_care_per_resource(g)
+
+    norm_scores = normalise_care_scores(scores)
+
+    scores += norm_scores
 
     # generate output
     # std out

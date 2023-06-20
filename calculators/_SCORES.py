@@ -9,6 +9,8 @@ class SCORES(DefinedNamespace):
     Score: URIRef
     CareScore: URIRef
     FairScore: URIRef
+    CareScoreNormalised: URIRef
+    FairScoreNormalised: URIRef
     LcLabelsScore: URIRef
     ScoreForTime: URIRef
 
@@ -27,8 +29,18 @@ class SCORES(DefinedNamespace):
     fairIScore: URIRef
     fairRScore: URIRef
 
-    carScoreValue: URIRef
+    careScoreValue: URIRef
     careCScore: URIRef
     careAScore: URIRef
     careRScore: URIRef
     careEScore: URIRef
+
+    fairFScoreNormalised: URIRef
+    fairAScoreNormalised: URIRef
+    fairIScoreNormalised: URIRef
+    fairRScoreNormalised: URIRef
+
+    careCScoreNormalised: URIRef
+    careAScoreNormalised: URIRef
+    careRScoreNormalised: URIRef
+    careEScoreNormalised: URIRef
