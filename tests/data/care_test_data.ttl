@@ -11,21 +11,28 @@
 @prefix org-indig: <https://data.idnau.org/pid/vocab/org-indigeneity/> .
 @prefix ind-indig: <https://data.idnau.org/pid/vocab/indigeneity/> .
 
+
+<https://linked.data.gov.au/dataset/idndc>
+    dcterms:hasPart <https://raw.githubusercontent.com/idn-au/catalogue-data/main/data/catalogues/democat/AAC-SA.ttl> ,
+                    <http://example.com/governance-framework> ;
+                    .
+
 <https://raw.githubusercontent.com/idn-au/catalogue-data/main/data/catalogues/democat/AAC-SA.ttl>
   a dcat:Dataset ;
   dcterms:title "Test dataset" ;
   dcterms:description "This is a test dataset" ;
   dcterms:isPartOf [ dcat:hadRole croles:home ; prov:entity <https://www.atsida.edu.au> ] ;  dcterms:accessRights <http://example.com/access> ;
   dcat:distribution <http://example.com/distribution> ;
-  prov:wasInfluencedBy <http://example.com/governance-framework> ;
   prov:wasAttributedTo in:attribution-incomplete ;
   odrl:hasPolicy in:open-to-collaborate ;
   dcterms:rights "Rights text" ;
   dcterms:license "License text" ;
   prov:qualifiedAttribution [ a prov:Attribution ;
-                              dcat:hadRole org-indig:owned-by-indigenous-persons ]
+                              dcat:hadRole org-indig:owned-by-indigenous-persons ] ,
+                            [ a prov:Attribution ;
+                                    dcat:hadRole ind-indig:by-indigenous-people ] ;
 .
 
 <http://example.com/governance-framework>
-  rdfs:label "Test governance framework" .
+  rdfs:label "Test indigenous governance framework" .
 

@@ -27,7 +27,7 @@ from pathlib import Path
 from typing import Optional, Union, Tuple
 
 import httpx
-from rdflib import Graph, URIRef, BNode, Literal, Namespace
+from rdflib import Graph, URIRef, BNode, Literal, Namespace, SKOS, RDFS
 from rdflib.namespace import DCAT, DCTERMS, RDF, TIME
 from rdflib.term import Node
 
@@ -145,6 +145,25 @@ def _forward_chain_dcat(g: Graph):
 
     for s, o in g.subject_objects(DCTERMS.hasPart):
         g.add((o, DCTERMS.isPartOf, s))
+
+
+def _forward_chain_labels(g: Graph):
+    """Finds labels that use the predicates, skos:prefLabel, dcterms:title and adds them as RDFS.labels
+
+    Only builds as necessary for scoring, i.e. not a complete RDFS or OWL inference"""
+    for s, o in g.subject_objects(SKOS.prefLabel):
+        g.add((s, RDFS.label, o))
+
+    for s, o in g.subject_objects(DCTERMS.title):
+        g.add((s, RDFS.label, o))
+
+
+def _forward_chain_descriptions(g: Graph):
+    """Finds descriptions that use the predicates, skos:definition, and adds them as DCTERMS.description
+
+    Only builds as necessary for scoring, i.e. not a complete RDFS or OWL inference"""
+    for s, o in g.subject_objects(SKOS.definition):
+        g.add((s, DCTERMS.description, o))
 
 
 def _bind_extra_prefixes(g: Graph, prefixes: dict):

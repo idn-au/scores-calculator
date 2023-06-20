@@ -365,7 +365,7 @@ def main(
     # build out input
     _forward_chain_dcat(g)
 
-    #TODO point to https://data.idnau.org/pid/cp/validator.ttl as validator.
+    # TODO point to https://data.idnau.org/pid/cp/validator.ttl as validator.
 
     # validate
     if validate:

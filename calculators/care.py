@@ -41,6 +41,8 @@ from calculators.parser import (
     _forward_chain_dcat,
     _get_valid_output_dir,
     _get_valid_output_file_and_type,
+    _forward_chain_labels,
+    _forward_chain_descriptions,
 )
 
 QB = Namespace("http://purl.org/linked-data/cube#")
@@ -108,7 +110,6 @@ def calculate_c1_discoverable(resource: URIRef):
     """check if the resource itself is discoverable"""
     x = httpx.get(
         resource,
-        headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
         follow_redirects=True,
     )
     if x.is_success:
@@ -139,7 +140,7 @@ def calculate_care_c2(metadata: Graph, resource: URIRef, c1_score) -> int:
     c2_value = 0
     if c1_score > 2 and calculate_c2_discoverable(metadata, resource) == 1:
         c2_value += 1
-    c2_value += any(metadata.objects(resource, DCTERMS.title))
+    c2_value += any(metadata.objects(resource, RDFS.label))
     c2_value += any(metadata.objects(resource, DCTERMS.description))
     return c2_value
 
@@ -151,14 +152,13 @@ def calculate_care_c3(metadata: Graph, resource: URIRef, c2_score: int) -> int:
     Indigenous data should benefit Indigenous communities in an equitable manner and contribute to Indigenous
     aspirations for wellbeing.
 
-    (Ethical) Use of the data has been documented [C2>3, +1] and then
+    (Ethical) Use of the data has been documented [C2>2, +1] and then
     locations of data collected are discoverable (Distribution info exists, +1).
     Equitable Outcomes from data are discoverable,? If the catalogue is about the data, I am not sure how provenance can
     be measured.
     """
     c3_value = 0
     if c2_score > 2:
-        # TODO confirm if C2 score can be greater than 3 (currently what is specified) or maximum of 3.
         c3_value += 1
     c3_value += any(metadata.objects(resource, DCAT.distribution))
     # TODO determine how to measure equitable outcomes.
@@ -173,14 +173,13 @@ def calculate_c2_discoverable(metadata: Graph, resource: URIRef):
             catalogue = str(metadata.value(o, PROV.entity))
         else:
             catalogue = str(o)
-    if catalogue is not None:
-        x = httpx.get(
-            catalogue,
-            headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
-            follow_redirects=True,
-        )
-        if x.is_success:
-            return 1
+        if catalogue is not None:
+            x = httpx.get(
+                catalogue,
+                follow_redirects=True,
+            )
+            if x.is_success:
+                return 1
     return 0
 
 
@@ -233,10 +232,11 @@ def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
 def calculate_a11_notices(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
+    # TODO create reference set of notices - we will add e.g. help wanted notice
     IN = Namespace("http://data.idnau.org/pid/vocab/lc-in/")
-    if any(
-        metadata.triples((resource, None, IN["attribution-incomplete"]))
-    ) or any(metadata.triples((resource, None, IN["open-to-collaborate"]))):
+    if any(metadata.triples((resource, None, IN["attribution-incomplete"]))) or any(
+        metadata.triples((resource, None, IN["open-to-collaborate"]))
+    ):
         return 1
     return 0
 
@@ -245,8 +245,8 @@ def calculate_a12_licence_rights(metadata: Graph, resource: URIRef):
     """A1.2      Licence, Rights and Access Rights are complete, +2"""
     if (
         any(metadata.objects(resource, DCTERMS.rights))
-        and any(metadata.objects(resource, DCTERMS.license))
-        and any(metadata.objects(resource, DCTERMS.accessRights))
+        or any(metadata.objects(resource, DCTERMS.license))
+        or any(metadata.objects(resource, DCTERMS.accessRights))
     ):
         return 2
     return 0
@@ -264,19 +264,24 @@ def calculate_care_a2(metadata: Graph, resource: URIRef, a1_score) -> int:
     has applied Institutional discovery/attribution Notices.[A1>0, +1]
     """
     a2_score = 0
-    # Assume the "informed by" is recorded as "prov:wasInfluencedBy"
-    influenced_records = metadata.objects(resource, PROV.wasInfluencedBy)
-    # check if any of the influenced records have a label with "governance" or "framework" in it.
-    for record in influenced_records:
-        labels = metadata.triples_choices(
-            (record, [RDFS.label, DCTERMS.title, SKOS.prefLabel], None)
-        )
-        for label in labels:
-            if "governance" in label[2].lower() or "framework" in label[2].lower():
-                a2_score += 2
     if a1_score > 0:
         a2_score += 1
+    a2_score += calculate_data_governance_framework(metadata, resource)
     return a2_score
+
+
+def calculate_data_governance_framework(metadata: Graph, resource: URIRef):
+    gov_score = 0
+    potential_catalogs = metadata.objects(resource, DCTERMS.isPartOf)
+    for catalog in potential_catalogs:
+        potential_governance_frameworks = metadata.objects(catalog, DCTERMS.hasPart)
+        for framework in potential_governance_frameworks:
+            framework_labels = metadata.objects(framework, RDFS.label)
+            for label in framework_labels:
+                if "governance" in label.lower() and "indigenous" in label.lower():
+                    gov_score += 2
+                    return gov_score
+    return gov_score
 
 
 def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
@@ -290,27 +295,40 @@ def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
     [...IDN Role Codes have Agents+ Organisations Indigeneity NOT EQUAL TO Non-Indigenous OR Indigeneity Unknown] (+3)
     """
     a32_score = calculate_a32_score(metadata, resource)
-    if a2_score > 1 and a32_score:
+    if a2_score > 0 and a32_score:
         return 3
 
 
 def calculate_a32_score(metadata: Graph, resource: URIRef):
+    if org_indigeneity(metadata, resource) or ind_indigeneity(metadata, resource):
+        return True
+    return False
+
+
+def org_indigeneity(metadata: Graph, resource: URIRef):
     ORG_INDIG = Namespace("https://data.idnau.org/pid/vocab/org-indigeneity/")
-    IND_INDIG = Namespace("https://data.idnau.org/pid/vocab/indigeneity/")
     org_role_codes = [
         ORG_INDIG["owned-by-indigenous-persons"],
         ORG_INDIG["indigenous-persons-organisation"],
         ORG_INDIG["run-by-indigenous-persons"],
     ]
+    qualified_attribution_bns = metadata.objects(resource, PROV.qualifiedAttribution)
+    for qabn in qualified_attribution_bns:
+        for role in metadata.objects(qabn, DCAT.hadRole):
+            if role in org_role_codes:
+                return True
+    return False
+
+
+def ind_indigeneity(metadata: Graph, resource: URIRef):
+    IND_INDIG = Namespace("https://data.idnau.org/pid/vocab/indigeneity/")
     ind_role_codes = [
-        IND_INDIG["about-indigenous-people"],
-        IND_INDIG["about-indigenous-things"],
         IND_INDIG["by-indigenous-people"],
     ]
     qualified_attribution_bns = metadata.objects(resource, PROV.qualifiedAttribution)
     for qabn in qualified_attribution_bns:
         for role in metadata.objects(qabn, DCAT.hadRole):
-            if role in org_role_codes or role in ind_role_codes:
+            if role in ind_role_codes:
                 return True
     return False
 
@@ -342,7 +360,6 @@ def calculate_r1(metadata: Graph, resource: URIRef):
     the dignity of Indigenous nations and communities.
 
     [A1.1>0, and A1.2>2, and A3.2>0, +3]
-    #TODO get spec updated - A1.2 has a maximum of 2, not 3, so condition should probably be >1, as below in code
     """
     a11_value = calculate_a11_notices(metadata, resource)
     a12_value = calculate_a12_licence_rights(metadata, resource)
@@ -360,7 +377,7 @@ def calculate_r2(metadata: Graph, resource: URIRef) -> int:
     and to support the development of an Indigenous data workforce and digital infrastructure to enable the creation,
     collection, management, security, governance, and application of data.
     """
-    # TODO - documentation has strikethrough?
+    # TODO - we don't believe this can be calculated at present.
     return 0
 
 
@@ -370,17 +387,40 @@ def calculate_r3(metadata: Graph, resource: URIRef) -> int:
     Resources must be provided to generate data grounded in the languages, worldviews, and lived experiences (including
     values and principles) of Indigenous Peoples.
 
-    The Institutional Data Catalogue is informed by an Indigenous Data Governance framework
-    with an identified Indigenous Custodian
+    The Institutional Data Catalogue is informed by an Indigenous Data Governance framework [Data Governance Framework
+    is catalogued, +1 (and associated with the metadata records, +1)]
+    with an identified Indigenous Custodian [organisation has indigeneity +1, individual has indigeneity +1. Using
+    vocabs]
     working with the ID Steward.
     Provenance, Protocols and Permissions labels have been negotiated and applied.
-    [R3 = C>6 AND A>7, +3]
+    [C1 > 0 and C2 > 0 and C3 > 0 and A1 > 0 and A2 > 0 and A3 > 0, +3]
+
     """
-    c_value = calculate_care_c(metadata, resource, BNode(), val_only=True)
-    a_value = calculate_care_a(metadata, resource, BNode(), val_only=True)
-    if c_value > 6 and a_value > 7:
-        return 3
-    return 0
+    r3_score = 0
+    gov_fwork = calculate_data_governance_framework(metadata, resource)
+    if gov_fwork > 0:
+        r3_score += 1
+    r3_score += org_indigeneity(metadata, resource)
+    r3_score += ind_indigeneity(metadata, resource)
+
+    c1_score = calculate_care_c1(metadata, resource)
+    c2_score = calculate_care_c2(metadata, resource, c1_score)
+    c3_score = calculate_care_c3(metadata, resource, c2_score)
+
+    a1_score = calculate_care_a1(metadata, resource)
+    a2_score = calculate_care_a2(metadata, resource, a1_score)
+    a3_score = calculate_care_a3(metadata, resource, a2_score)
+
+    if (
+        c1_score > 0
+        and c2_score > 0
+        and c3_score > 0
+        and a1_score > 0
+        and a2_score > 0
+        and a3_score > 0
+    ):
+        r3_score += 3
+    return r3_score
 
 
 def calculate_care_e(metadata: Graph, resource: URIRef, score_container: Node) -> Graph:
@@ -404,13 +444,16 @@ def calculate_e1(metadata: Graph, resource: URIRef) -> int:
     affirmed in UNDRIP. Assessing ethical benefits and harms should be done from the perspective of the Indigenous
     Peoples, nations, or communities to whom the data relate.
 
-    (Ethical (re)) Use of the data are clearly defined and accessible. [C>7, A1>3, A2>1, +3]
+    (Ethical (re)) Use of the data are clearly defined and accessible.
+    [C1 > 1 and C2 > 1 and C3 > 1, A1>1, A2>1 +3]
     """
-    c_value = calculate_care_c(metadata, resource, BNode(), val_only=True)
+    c1_value = calculate_care_c1(metadata, resource)
+    c2_value = calculate_care_c2(metadata, resource, c1_value)
+    c3_value = calculate_care_c3(metadata, resource, c2_value)
     a1_value = calculate_care_a1(metadata, resource)
     a2_value = calculate_care_a2(metadata, resource, a1_value)
-    # TODO confirm if a1_value CAN be greater than 3 (current spec) or if it should be >2, as in code, as the maximum value is 3.
-    if c_value > 7 and a1_value > 2 and a2_value > 1:
+
+    if c1_value > 1 and c2_value > 1 and c3_value > 1 and a1_value > 1 and a2_value > 1:
         return 3
     return 0
 
@@ -496,6 +539,8 @@ def main(
 
     # build out input
     _forward_chain_dcat(g)
+    _forward_chain_labels(g)
+    _forward_chain_descriptions(g)
 
     # validate
     if validate:
