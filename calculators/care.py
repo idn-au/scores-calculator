@@ -108,10 +108,13 @@ def calculate_care_c1(metadata: Graph, resource: URIRef) -> int:
 
 def calculate_c1_discoverable(resource: URIRef):
     """check if the resource itself is discoverable"""
-    x = httpx.get(
-        resource,
-        follow_redirects=True,
-    )
+    try:
+        x = httpx.get(
+            resource,
+            follow_redirects=True,
+        )
+    except httpx.HTTPError:
+        return 0
     if x.is_success:
         return 1
     return 0
@@ -174,10 +177,13 @@ def calculate_c2_discoverable(metadata: Graph, resource: URIRef):
         else:
             catalogue = str(o)
         if catalogue is not None:
-            x = httpx.get(
-                catalogue,
-                follow_redirects=True,
-            )
+            try:
+                x = httpx.get(
+                    catalogue,
+                    follow_redirects=True,
+                )
+            except httpx.HTTPError:
+                return 0
             if x.is_success:
                 return 1
     return 0
@@ -297,7 +303,7 @@ def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
     a32_score = calculate_a32_score(metadata, resource)
     if a2_score > 0 and a32_score:
         return 3
-
+    return 0
 
 def calculate_a32_score(metadata: Graph, resource: URIRef):
     if org_indigeneity(metadata, resource) or ind_indigeneity(metadata, resource):

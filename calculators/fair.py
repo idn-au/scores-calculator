@@ -160,7 +160,7 @@ def calculate_f(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
             follow_redirects=True,
         )
         if x.is_success:
-            f_value += 4
+            f_value += 2  # changed to maximum of four to align with calculator here https://github.com/au-research/FAIR-Data-Assessment-Tool
 
     return _create_observation(score_container, SCORES.fairFScore, Literal(f_value))
 
@@ -188,17 +188,18 @@ def calculate_a(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     for o in metadata.objects(resource, DCAT.theme):
         declared = True
 
+        # David: scores doubled to align with https://github.com/au-research/FAIR-Data-Assessment-Tool/
         if o in [DAR.protected, DAR.restricted]:
             a_value += 0
         elif o == DAR["metadata-only"]:
-            a_value += 1
-        elif o == DAR.conditional:
             a_value += 2
+        elif o == DAR.conditional:
+            a_value += 4
         elif o == DAR.embargoed:
-            a_value += 3
+            a_value += 6
         # 4
         elif o == DAR.open:
-            a_value += 5
+            a_value += 10
 
     if not declared:
         # TODO: try some other method
@@ -271,8 +272,7 @@ def calculate_i(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     if i_value_ignoring_metadata >= 3:
         i_value += 2
     elif i_value_ignoring_metadata >= 1:
-        i_value += 1
-    i_value += 1
+        i_value += 2
 
     return _create_observation(score_container, SCORES.fairIScore, Literal(i_value))
 
@@ -306,18 +306,18 @@ def calculate_r(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
     """
     r_value = 0
     # R1.1. "(meta)data are released with a clear and accessible data usage license."
-    r_value += licensing_score(metadata, resource)
+    r_value += licensing_score(metadata, resource)  # max score is 2
     # R1.2. "(meta)data are associated with their provenance."
     # Assume provenance is declared through the use of a standard set of properties, such those in the provenance
     # ontology
-    r_value += provenance_score(metadata, resource)
+    r_value += provenance_score(metadata)  # max score is 3
     # R1.3. "(meta)data meet domain-relevant community standards."
     # interpreted as referring to 4.3, which in turn refers to JDDCP 1-3.
     # This has been interpreted that, if a dcterms:source is declared, it should ideally be a URI,
     # and additional provenance information for it should exist.
     # logic implemented: if a dcterms:source is declared, check its type: if URI 2 points, otherwise, if it is a literal
     # AND has a datatype of xsd:anyURI, 1 point, otherwise 0 points.
-    r_value += data_source_score(metadata, resource)
+    r_value += data_source_score(metadata, resource)  # max score is 2
 
     return _create_observation(score_container, SCORES.fairRScore, Literal(r_value))
 
