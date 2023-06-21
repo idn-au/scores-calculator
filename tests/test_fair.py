@@ -97,6 +97,7 @@ def test_data_source_score():
     component_score = data_source_score(g, resource)
     assert component_score == 1
 
+
 def test_fair_normaliser():
     g = Graph().parse(str(TEST_DATA_DIR / "TEST-fair.ttl"), format="turtle")
     normalise_fair_scores(g)

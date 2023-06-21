@@ -156,15 +156,14 @@ def calculate_f(metadata: Graph, resource: URIRef, score_container: Node) -> Gra
         ]
         try:
             x = httpx.get(
-            catalogue,
-            headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
-            follow_redirects=True,
+                catalogue,
+                headers={"Accept": ", ".join(RDF_MEDIA_TYPES)},
+                follow_redirects=True,
             )
             if x.is_success:
-                f_value += 2 # changed to maximum of four to align with calculator here https://github.com/au-research/FAIR-Data-Assessment-Tool
+                f_value += 2  # changed to maximum of four to align with calculator here https://github.com/au-research/FAIR-Data-Assessment-Tool
         except httpx.HTTPError:
             pass
-
 
     return _create_observation(score_container, SCORES.fairFScore, Literal(f_value))
 
@@ -362,10 +361,18 @@ def normalise_fair_scores(g: Graph) -> Graph:
         a_value = next(g.objects(subject=None, predicate=SCORES.fairAScore))
         i_value = next(g.objects(subject=None, predicate=SCORES.fairIScore))
         r_value = next(g.objects(subject=None, predicate=SCORES.fairRScore))
-        g += _create_observation(og_node, SCORES.fairFScoreNormalised, Literal(f"{int(f_value) / 17:.2f}"))
-        g += _create_observation(og_node, SCORES.fairAScoreNormalised, Literal(f"{int(a_value) / 10:.2f}"))
-        g += _create_observation(og_node, SCORES.fairIScoreNormalised, Literal(f"{int(i_value) / 8:.2f}"))
-        g += _create_observation(og_node, SCORES.fairRScoreNormalised, Literal(f"{int(r_value) / 7:.2f}"))
+        g += _create_observation(
+            og_node, SCORES.fairFScoreNormalised, Literal(f"{int(f_value) / 17:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.fairAScoreNormalised, Literal(f"{int(a_value) / 10:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.fairIScoreNormalised, Literal(f"{int(i_value) / 8:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.fairRScoreNormalised, Literal(f"{int(r_value) / 7:.2f}")
+        )
         g.add((og_node, RDF.type, SCORES.FairScoreNormalised))
         g.add((og_node, RDF.type, QB.ObservationGroup))
         g.add((og_node, SCORES.refResource, s))

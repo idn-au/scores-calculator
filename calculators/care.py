@@ -305,6 +305,7 @@ def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
         return 3
     return 0
 
+
 def calculate_a32_score(metadata: Graph, resource: URIRef):
     if org_indigeneity(metadata, resource) or ind_indigeneity(metadata, resource):
         return True
@@ -507,7 +508,7 @@ def calculate_care(g: Graph, resource: URIRef) -> Graph:
     s = Graph(bind_namespaces="rdflib")
     _bind_extra_prefixes(s, EXTRA_PREFIXES)
 
-    og_node, og_graph = _create_observation_group(resource, SCORES.careScore)
+    og_node, og_graph = _create_observation_group(resource, SCORES.CareScore)
     s += og_graph
 
     s += calculate_care_c(g, resource, og_node)
@@ -527,25 +528,32 @@ def calculate_care_per_resource(g: Graph) -> Graph:
 
     return scores
 
+
 def normalise_care_scores(g: Graph) -> Graph:
-    """ Normalizes CARE scores to a range between 0 and 1, where 0 is the lowest possible score and 1 is the highest"""
+    """Normalizes CARE scores to a range between 0 and 1, where 0 is the lowest possible score and 1 is the highest"""
     for s in g.subjects(SCORES.hasScore, None):
-        og_node, og_graph = _create_observation_group(s, SCORES.careScoreNormalised)
+        og_node, og_graph = _create_observation_group(s, SCORES.CareScoreNormalised)
         c_value = next(g.objects(subject=None, predicate=SCORES.careCScore))
         a_value = next(g.objects(subject=None, predicate=SCORES.careAScore))
         r_value = next(g.objects(subject=None, predicate=SCORES.careRScore))
         e_value = next(g.objects(subject=None, predicate=SCORES.careEScore))
-        g += _create_observation(og_node, SCORES.careCScoreNormalised, Literal(f"{int(c_value) / 8:.2f}"))
-        g += _create_observation(og_node, SCORES.careAScoreNormalised, Literal(f"{int(a_value) / 9:.2f}"))
-        g += _create_observation(og_node, SCORES.careRScoreNormalised, Literal(f"{int(r_value) / 9:.2f}"))
-        g += _create_observation(og_node, SCORES.careEScoreNormalised, Literal(f"{int(e_value) / 3:.2f}"))
-        g.add((og_node, RDF.type, SCORES.careScoreNormalised))
+        g += _create_observation(
+            og_node, SCORES.careCScoreNormalised, Literal(f"{int(c_value) / 8:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.careAScoreNormalised, Literal(f"{int(a_value) / 9:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.careRScoreNormalised, Literal(f"{int(r_value) / 9:.2f}")
+        )
+        g += _create_observation(
+            og_node, SCORES.careEScoreNormalised, Literal(f"{int(e_value) / 3:.2f}")
+        )
+        g.add((og_node, RDF.type, SCORES.CareScoreNormalised))
         g.add((og_node, RDF.type, QB.ObservationGroup))
         g.add((og_node, SCORES.refResource, s))
         g.add((s, SCORES.hasScore, og_node))
     return g
-
-
 
 
 def main(
