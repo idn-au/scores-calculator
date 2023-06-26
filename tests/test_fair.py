@@ -3,7 +3,7 @@ from pathlib import Path
 
 from rdflib import Graph, BNode, URIRef
 
-from calculators.fair import calculate_i
+from calculators.fair import calculate_i, normalise_fair_scores
 from calculators.functions import (
     shared_vocabs_ontologies,
     machine_readability_score,
@@ -96,3 +96,8 @@ def test_data_source_score():
     resource = URIRef("https://example.com/dataset")
     component_score = data_source_score(g, resource)
     assert component_score == 1
+
+
+def test_fair_normaliser():
+    g = Graph().parse(str(TEST_DATA_DIR / "TEST-fair.ttl"), format="turtle")
+    normalise_fair_scores(g)

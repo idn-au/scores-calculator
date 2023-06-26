@@ -90,9 +90,9 @@ def provenance_score(metadata: Graph):
     If the resource has provenance, a score of 2 is given, else a score of 0 is given."""
     all_props = set(metadata.predicates(subject=None, object=None))
     if any([p for p in all_props if p in PROV]):
-        return 2
+        return 3
     elif any([p for p in all_props if p in additional_provenance_properties]):
-        return 2
+        return 3
     return 0
 
 
