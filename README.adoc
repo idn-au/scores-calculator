@@ -34,22 +34,26 @@ The creators and maintainers of this software wish for it to be available for us
 
 This software is copyright as follows:
 
-(c) Indigenous Data Network, 2022
+(c) Indigenous Data Network, 2023
 
 == Contact
 
-Please contact the Indigenous Data Network maintainers of this code for all issues:
+For technical enquiries:
 
-_Lead Developer_: +
-*Nicholas Car* +
-GitHub: https://github.com/nicholascar[@nicholascar] +
-Email: nick@kurrawong.net +
+**Jamie Feiss** +
+*Data Infrastructure Developer* +
+Indigenous Data Network +
+University of Melbourne +
+jamie.feiss@unimelb.edu.au
 
-_Project Owner_: +
-*Sandra Silcot* +
-GitHub: https://github.com/ssilcot[@ssilcot] +
+For policy:
+
+**Levi Murray** +
+*Strategic Data Manager* +
+Indigenous Data Network +
+University of Melbourne +
+levi.murray@unimelb.edu.au
 
 _Owner Organisation_ +
 *Indigenous Data Network* +
 https://idnau.org
-
