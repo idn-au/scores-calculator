@@ -76,8 +76,10 @@ def calculate_care_c(
 
     Data ecosystems shall be designed and function in ways that enable Indigenous Peoples to derive benefit from the
     data."""
+    #TODO obsv_g = Graph()
     c_value = 0
     c1_score = calculate_care_c1(metadata, resource)  # max 3
+    #TODO obsv_g += _create_observation(score_container, SCORES.careC1Score, Literal(c1_score))
     c_value += c1_score
     c2_score = calculate_care_c2(metadata, resource, c1_score)  # max 3
     c_value += c2_score
