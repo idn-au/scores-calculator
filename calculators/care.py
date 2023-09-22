@@ -230,15 +230,16 @@ def calculate_care_a1(metadata: Graph, resource: URIRef) -> int:
     A1.2      Licence, Rights and Access Rights are complete, +2
     """
     a1_value = 0
-    a1_value += calculate_a11_notices(metadata, resource)
+
+    # NB A1.1 is not currently being used - discussed with Margie 22/9/23
+    # a1_value += calculate_a11_notices(metadata, resource)
     a1_value += calculate_a12_licence_rights(metadata, resource)
     return a1_value
 
-
+# NB A1.1 is not currently being used - discussed with Margie 22/9/23
 def calculate_a11_notices(metadata: Graph, resource: URIRef):
     """The Institutional Data Catalogue has applied Institutional discovery Notices.
     [Attribution Incomplete Notice exists (+1)] and/or [Open to Collaboration Notice exists (+1)]"""
-    # TODO create reference set of notices - we will add e.g. help wanted notice
     IN = Namespace("http://data.idnau.org/pid/vocab/lc-in/")
     if any(metadata.triples((resource, None, IN["attribution-incomplete"]))) or any(
         metadata.triples((resource, None, IN["open-to-collaborate"]))
@@ -307,6 +308,7 @@ def calculate_care_a3(metadata: Graph, resource: URIRef, a2_score) -> int:
 
 
 def calculate_a32_score(metadata: Graph, resource: URIRef):
+    # 22/9/23: David discussed with Margie - likely to change soon - no code changes pending confirmation
     if org_indigeneity(metadata, resource) or ind_indigeneity(metadata, resource):
         return True
     return False
@@ -384,8 +386,9 @@ def calculate_r2(metadata: Graph, resource: URIRef) -> int:
     and to support the development of an Indigenous data workforce and digital infrastructure to enable the creation,
     collection, management, security, governance, and application of data.
     """
-    # TODO - we don't believe this can be calculated at present.
-    return 0
+    r2_score = 0
+    r2_score += ind_indigeneity(metadata, resource)
+    return r2_score
 
 
 def calculate_r3(metadata: Graph, resource: URIRef) -> int:
