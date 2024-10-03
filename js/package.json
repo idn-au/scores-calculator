@@ -1,0 +1,40 @@
+{
+    "name": "scores-calculator-js",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/scores-calculator-js.umd.cjs",
+    "module": "./dist/scores-calculator-js.js",
+    "exports": {
+        ".": {
+            "import": "./dist/scores-calculator-js.js",
+            "require": "./dist/scores-calculator-js.umd.cjs",
+            "types": "./dist/index.d.ts"
+        }
+    },
+    "types": "./dist/index.d.ts",
+    "publishConfig": {
+        "registry": "https://npm.pkg.github.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/idn-au/scores-calculator.git",
+        "directory": "js"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && tsc --emitDeclarationOnly",
+        "preview": "vite preview"
+    },
+    "devDependencies": {
+        "typescript": "^5.5.3",
+        "vite": "^5.4.1"
+    },
+    "dependencies": {
+        "oxigraph": "0.4.0",
+        "yaml": "^2.5.1"
+    }
+}
