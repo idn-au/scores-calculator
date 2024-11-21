@@ -3,7 +3,7 @@ import { parse as parseYaml } from "yaml";
 import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag } from "./types";
 
 const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.0/web_bg.wasm";
-const DEFINITION_URL_PREFIX = "https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature/refactor/definitions"
+const DEFINITION_URL_PREFIX = "https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions"
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -143,6 +143,7 @@ function scoreByKey(key: string, obj: ScoreDefObj, dag: Dag, scoredObj: ScoreVal
 
                 if (def.prerequisites) {
                     satisfiedPrereqs = def.prerequisites.conditions.every(c => evaluateCondition(c.key, scoredObj, c.value));
+                    value.prerequisites!.enabled = satisfiedPrereqs;
                 }
 
                 if (result && satisfiedPrereqs) {

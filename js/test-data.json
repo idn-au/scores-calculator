@@ -1,0 +1,17 @@
+{
+    "f": {
+        "value": 15,
+        "max": 15,
+        "scores": {
+            "f1": {
+                "value": 5,
+                "max": 15,
+                "requirements": {
+                    "f1r1": true,
+                    "f1r2": true,
+                    "f1r3": true
+                }
+            }
+        }
+    }
+}
