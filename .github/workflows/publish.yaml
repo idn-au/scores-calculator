@@ -33,6 +33,6 @@ jobs:
       - name: Build package
         run: pnpm build
       - name: Publish to GitHub NPM Registry
-        run: pnpm publish --publish-branch feature/refactor
+        run: pnpm publish --publish-branch feature/refactor --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
