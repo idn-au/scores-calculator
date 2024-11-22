@@ -27,7 +27,7 @@ jobs:
           node-version: 20
           cache: 'pnpm'
           registry-url: 'https://npm.pkg.github.com'
-          cache-dependency-path: js/pnpm-lock.json
+          cache-dependency-path: js/pnpm-lock.yaml
       - name: Install dependencies
         run: pnpm install
       - name: Install dependencies
