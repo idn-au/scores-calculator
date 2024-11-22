@@ -1,6 +1,5 @@
 {
     "name": "scores-calculator-js",
-    "private": true,
     "version": "0.1.5",
     "type": "module",
     "files": [
