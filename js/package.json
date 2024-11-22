@@ -1,6 +1,6 @@
 {
-    "name": "scores-calculator-js",
-    "version": "0.1.6",
+    "name": "@idn-au/scores-calculator-js",
+    "version": "0.1.7",
     "type": "module",
     "files": [
         "dist"
