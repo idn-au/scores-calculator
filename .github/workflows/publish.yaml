@@ -30,9 +30,9 @@ jobs:
           cache-dependency-path: js/pnpm-lock.yaml
       - name: Install dependencies
         run: pnpm install
-      - name: Install dependencies
+      - name: Build package
         run: pnpm build
       - name: Publish to GitHub NPM Registry
-        run: pnpm publish
+        run: pnpm publish --publish-branch feature/refactor
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
