@@ -8,10 +8,10 @@ f:
       requirements:
         - value: 1
           description: Metadata has an identifier
-          query: "ASK { #iri# ?p ?o }"
+          query: "ASK { #iri# ?p ?o }" # if IRI exists then it has an identifier
         - value: 1
           description: Metadata identifier is a URL
-          query: "ASK { #iri# ?p ?o }"
+          query: "ASK { #iri# ?p ?o }" # if IRI exists then ID is a valid URL
         - value: 3
           description: Metadata identifier is globally unique, citable and persistent
           query: "ASK { #iri# ?p ?o }" # ignore - can't query for resolvable URLs in data?
@@ -19,22 +19,28 @@ f:
       title: F2
       description: Data are described with rich metadata
       requirements:
-        - value: 1
+        - value: 2
           description: Resource title and description is included
           query: |
             ASK {
                 #iri# dcterms:title ?title ;
                     dcterms:description ?desc .
             }
-        - value: 1
-          description: Additional descriptive properties are present
-          query: "ASK { #iri# dcterms:type|dcat:theme ?o }"
         - value: 2
+          description: Additional descriptive properties are present
+          query: "ASK { #iri# dcterms:type ?indigeneity }"
+        - value: 3
           description: All recommended descriptive properties are present
           query: |
             ASK {
-                #iri# dcterms:type ?indigeneity ;
-                    dcat:theme ?theme .
+                #iri# dcterms:title ?title ;
+                    dcterms:description ?desc ;
+                    dcterms:type ?indigeneity ;
+                    dcat:theme ?theme ;
+                    prov:qualifiedAttribution ?agentRole .
+                ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+                    prov:agent ?agent .
+                ?agent sdo:email|sdo:telephone ?contact .
             }
     f3:
       title: F3
@@ -51,12 +57,23 @@ f:
       title: F4
       description: (Meta)data are registered or indexed in a searchable resource
       requirements:
-        - value: 2
+        - value: 3
           description: Data is described in a repository
-          query: "ASK { #iri# ?p ?o }" # ignore
-        - value: 2
+          query: "ASK { #iri# dcat:distribution ?dist }"
+        - value: 1
           description: Data is discoverable through several registries
-          query: "ASK { #iri# ?p ?o }" # ignore
+          query: |
+            ASK WHERE { 
+              {
+                SELECT ?resource (count(?dist) as ?dist_count)
+                WHERE {
+                  BIND(#iri# as ?resource)
+                  ?resource dcat:distribution ?dist . 
+                }
+                GROUP BY ?resource
+              }
+              FILTER(?dist_count > 1)
+            }
 a:
   title: Accessible
   description: Once data is found, access information needs to be clearly indicated on the metadata.
@@ -246,5 +263,8 @@ r:
                   key: f3
                   value: 2
             - value: 1
-              description: The data source has provenance
-              query: "ASK { #iri# ?p ?o }" # ignore
+              description: Metadata conforms to well known community standards
+              conditions:
+                - title: A1 >= 6
+                  key: a1
+                  value: 6
