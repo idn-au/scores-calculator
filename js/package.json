@@ -1,6 +1,6 @@
 {
     "name": "@idn-au/scores-calculator-js",
-    "version": "0.1.7",
+    "version": "0.1.8",
     "type": "module",
     "files": [
         "dist"
@@ -29,11 +29,13 @@
         "preview": "vite preview"
     },
     "devDependencies": {
-        "typescript": "^5.5.3",
+        "@types/jsonld": "^1.5.15",
+        "typescript": "^5.8.3",
         "vite": "^5.4.1"
     },
     "dependencies": {
-        "oxigraph": "0.4.0",
-        "yaml": "^2.5.1"
+        "jsonld": "^8.3.3",
+        "oxigraph": "0.4.9",
+        "yaml": "^2.7.1"
     }
 }

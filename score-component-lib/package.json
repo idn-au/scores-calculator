@@ -1,0 +1,68 @@
+{
+    "name": "@idn-au/score-component-lib",
+    "version": "0.1.8",
+    "type": "module",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/idn-au/scores-calculator.git",
+        "directory": "score-component-lib"
+    },
+    "keywords": [
+        "vue3",
+        "vue",
+        "vuejs"
+    ],
+    "files": [
+        "dist"
+    ],
+    "main": "./dist/score-component-lib.umd.cjs",
+    "module": "./dist/score-component-lib.js",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/score-component-lib.js",
+            "require": "./dist/score-component-lib.umd.cjs"
+        },
+        "./score-component-lib.css": {
+            "import": "./dist/score-component-lib.css",
+            "require": "./dist/score-component-lib.css"
+        }
+    },
+    "types": "./dist/index.d.ts",
+    "scripts": {
+        "dev": "vite",
+        "build": "vue-tsc && vite build",
+        "preview": "vite preview",
+        "test:unit": "vitest",
+        "build-only": "vite build",
+        "type-check": "vue-tsc --build",
+        "preinstall": "npx only-allow pnpm"
+    },
+    "peerDependencies": {
+        "vue": "^3.0.0"
+    },
+    "dependencies": {
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
+        "lucide-vue-next": "^0.483.0",
+        "radix-vue": "^1.9.10",
+        "@idn-au/scores-calculator-js": "workspace:@idn-au/scores-calculator-js@*",
+        "tailwind-merge": "^2.5.5",
+        "tailwindcss-animate": "^1.0.7"
+    },
+    "devDependencies": {
+        "@types/jsdom": "^21.1.7",
+        "@types/node": "^22.15.8",
+        "@vitejs/plugin-vue": "^5.2.3",
+        "@vue/test-utils": "^2.4.6",
+        "autoprefixer": "^10.4.20",
+        "jsdom": "^25.0.1",
+        "tailwindcss": "^3.4.15",
+        "typescript": "~5.6.3",
+        "vite": "^6.3.5",
+        "vite-plugin-dts": "^4.5.3",
+        "vite-plugin-vue-devtools": "^7.7.6",
+        "vitest": "^2.1.9",
+        "vue-tsc": "^2.2.10"
+    }
+}

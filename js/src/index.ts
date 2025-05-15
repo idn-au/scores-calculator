@@ -1,7 +1,6 @@
-import { dagScoring, fairScore, careScore } from "./scoring";
+import { Scoring } from "./scoring";
+export * from "./types";
 
 export {
-    dagScoring,
-    fairScore,
-    careScore,
+    Scoring,
 };

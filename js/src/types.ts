@@ -74,3 +74,9 @@ export type ScoreDefObj = {
 export type ScoreValueObj = {
     [key: string]: ScoreValue;
 };
+
+export type EndpointConfig = {
+    url: string;
+    username?: string;
+    password?: string;
+};

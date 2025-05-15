@@ -1,9 +1,10 @@
 import init, * as oxigraph from "oxigraph/web";
 import { parse as parseYaml } from "yaml";
-import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag } from "./types";
+import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag, EndpointConfig } from "./types";
+import packageJSON from "../package.json";
 
-const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.0/web_bg.wasm";
-const DEFINITION_URL_PREFIX = "https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions"
+const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.9/web_bg.wasm";
+const DEFINITION_URL_PREFIX = "https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions";
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -13,6 +14,28 @@ const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX sdo: <https://schema.org/>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`;
+
+/**
+ * Performs a SPARQL ASK query to a remote endpoint, with optional basic auth
+ * 
+ * @param endpoint 
+ * @param query 
+ * @returns true or false
+ */
+async function sparqlAskRequest(endpoint: EndpointConfig, query: string): Promise<boolean> {
+    const headers = new Headers({
+        "Accept": "application/sparql-results+json",
+        "Content-Type": "application/sparql-query",
+    });
+    if (endpoint.username && endpoint.password) {
+        headers.set("Authorization", "Basic " + btoa(endpoint.username + ":" + endpoint.password));
+    }
+    return fetch(endpoint.url, {
+        method: "POST",
+        body: query,
+        headers: headers,
+    }).then(r => r.json()).then(r => r.boolean);
+}
 
 /**
  * Finds a nested object using only the key
@@ -99,39 +122,32 @@ function traverseScores(scores: ScoreDefObj, dag: Dag): ScoreValueObj {
 }
 
 /**
- * Builds the DAG and the scored object without values
- * 
- * @param obj 
- * @returns 
- */
-export function buildDag(obj: ScoreDefObj): { dag: Dag, scoredObj: ScoreValueObj } {
-    const dag: Dag = {};
-    const scoredObj = traverseScores(obj, dag);
-
-    return { dag, scoredObj };
-}
-
-/**
  * Performs scoring following a DAG
  * 
  * @param key 
  * @param obj 
  */
-function scoreByKey(key: string, obj: ScoreDefObj, dag: Dag, scoredObj: ScoreValueObj, store: oxigraph.Store, iri: string) {
+function scoreByKey(key: string, obj: ScoreDefObj, dag: Dag, scoredObj: ScoreValueObj, store: oxigraph.Store | null, iri: string, endpoint?: EndpointConfig) {
     if (!dag[key].completed) {
         dag[key].depends.forEach(d => {
             scoreByKey(d, obj, dag, scoredObj, store, iri);
         });
-        
+
         const def = searchByKey(key, obj) as ScoreDef;
         const value = searchByKey(key, scoredObj) as ScoreValue;
-        
+
         if (def.requirements) {
-            def.requirements.forEach((r, index) => {
+            def.requirements.forEach(async (r, index) => {
                 let queryResult = true;
                 let conditionsResult = true;
                 if (r.query) {
-                    queryResult = store.query(PREFIXES + "\n" + r.query.replace("#iri#", `<${iri}>`)) as boolean;
+                    const query = PREFIXES + "\n" + r.query.replace("#iri#", `<${iri}>`);
+                    if (store === null && endpoint) {
+                        queryResult = await sparqlAskRequest(endpoint, query);
+                    } else {
+                        queryResult = store!.query(query) as boolean;
+                    }
+
                 }
                 if (r.conditions) {
                     conditionsResult = r.conditions!.every(c => evaluateCondition(c.key, scoredObj, c.value));
@@ -153,39 +169,160 @@ function scoreByKey(key: string, obj: ScoreDefObj, dag: Dag, scoredObj: ScoreVal
         } else if (def.scores) {
             value.value = Object.values(value.scores!).reduce((acc, curr) => acc + curr.value, 0);
         }
-        
+
         dag[key].completed = true;
     }
 }
 
 /**
- * Uses the DAG to score the whole score def
+ * Builds the DAG and the scored object without values
  * 
  * @param obj 
+ * @returns 
  */
-export async function dagScoring(data: string, obj: ScoreDefObj, iri: string, format: Format = "text/turtle",
-    // output: "json" | "turtle" = "json"
-): Promise<ScoreValueObj> {
-    await init(OXIGRAPH_WASM_URL);
-    const store = new oxigraph.Store();
-    store.load(data, { format });
-    const { dag, scoredObj } = buildDag(obj);
+function buildDag(obj: ScoreDefObj): { dag: Dag, scoredObj: ScoreValueObj } {
+    const dag: Dag = {};
+    const scoredObj = traverseScores(obj, dag);
 
-    Object.keys(obj).forEach(key => {
-        scoreByKey(key, obj, dag, scoredObj, store, iri);
+    return { dag, scoredObj };
+}
+
+function generateRDFScoreByKey(key: string, scoreType: string, store: oxigraph.Store, scoredObj: ScoreValue, obsBNode: oxigraph.BlankNode) {
+    const bnode = oxigraph.blankNode();
+    store.add(oxigraph.triple(obsBNode, oxigraph.namedNode("http://purl.org/linked-data/cube#observation"), bnode));
+    store.add(oxigraph.triple(bnode, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://purl.org/linked-data/cube#Observation")));
+
+    const bnode2 = oxigraph.blankNode();
+    store.add(oxigraph.triple(bnode, oxigraph.namedNode(`https://linked.data.gov.au/def/scores/${scoreType.toLowerCase()}${key.toUpperCase()}Score`), bnode2));
+    store.add(oxigraph.triple(bnode2, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://purl.org/linked-data/cube#ObservationGroup")));
+    
+    if (scoredObj.scores) {
+        Object.keys(scoredObj.scores).forEach(subkey => {
+            generateRDFScoreByKey(subkey, scoreType, store, scoredObj.scores![subkey], bnode2);
+        });
+    } else {
+        scoredObj.requirements!.forEach((r, index) => {
+            const bnode3 = oxigraph.blankNode();
+            store.add(oxigraph.triple(bnode2, oxigraph.namedNode("http://purl.org/linked-data/cube#observation"), bnode3));
+            store.add(oxigraph.triple(bnode3, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://purl.org/linked-data/cube#Observation")));
+            store.add(oxigraph.triple(bnode3, oxigraph.namedNode(`https://linked.data.gov.au/def/scores/${scoreType.toLowerCase()}${key.toUpperCase()}Req${index + 1}Score`), oxigraph.literal((r.enabled ? r.value : 0).toString(), oxigraph.namedNode("http://www.w3.org/2001/XMLSchema#integer"))));
+        });
+    }
+}
+
+function generateRDFScores(iri: string, scoreType: string, scoredObj: ScoreValueObj): string {
+    const store = new oxigraph.Store();
+    store.load(`PREFIX dcat: <http://www.w3.org/ns/dcat#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX scores: <https://linked.data.gov.au/def/scores/>
+PREFIX sdo: <https://schema.org/>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`, {format: "text/turtle"});
+    const resource = oxigraph.namedNode(iri);
+    store.add(oxigraph.triple(resource, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://www.w3.org/ns/dcat#Resource")));
+    const scoresBNode = oxigraph.blankNode();
+    store.add(oxigraph.triple(resource, oxigraph.namedNode("https://linked.data.gov.au/def/scores/hasScore"), scoresBNode));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("https://linked.data.gov.au/def/scores/refResource"), resource));
+    const currentDateTime = new Date().toISOString().split(".")[0];
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://purl.org/dc/terms/created"), oxigraph.literal(currentDateTime, oxigraph.namedNode("http://www.w3.org/2001/XMLSchema#dateTime"))));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("https://schema.org/version"), oxigraph.literal(packageJSON.version)));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://purl.org/linked-data/cube#ObservationGroup")));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode(`https://linked.data.gov.au/def/scores/${scoreType.charAt(0).toUpperCase() + scoreType.substring(1).toLowerCase()}Score`)));
+
+    Object.keys(scoredObj).forEach(key => {
+        generateRDFScoreByKey(key, scoreType, store, scoredObj[key], scoresBNode);
     });
 
-    return scoredObj;
+    return store.dump({ format: "text/turtle", from_graph_name: oxigraph.defaultGraph() });
 }
 
-export async function fairScore(data: string, iri: string, format: Format = "text/turtle"): Promise<ScoreValueObj> {
-    const r = await fetch(`${DEFINITION_URL_PREFIX}/fairDef.yaml`);
-    const yamlFile = await r.text()
-    return await dagScoring(data, parseYaml(yamlFile) as ScoreDefObj, iri, format);
-}
+export class Scoring {
+    public store: oxigraph.Store | null;
+    public scoreDefs: Record<string, ScoreDefObj>;
 
-export async function careScore(data: string, iri: string, format: Format = "text/turtle"): Promise<ScoreValueObj> {
-    const r = await fetch(`${DEFINITION_URL_PREFIX}/careDef.yaml`);
-    const yamlFile = await r.text()
-    return await dagScoring(data, parseYaml(yamlFile) as ScoreDefObj, iri, format);
+    constructor(scoreDefs: Record<string, ScoreDefObj>, store: oxigraph.Store | null) {
+        this.scoreDefs = scoreDefs;
+        this.store = store;
+    }
+
+    static async init(scoreTypes: string[], data?: oxigraph.Store | { value: string, format: Format }) {
+        // initialise oxigraph wasm
+        if (!data || typeof data === "object") {
+            await init(OXIGRAPH_WASM_URL);
+        }
+
+        let store = null;
+
+        // set oxigraph store if applicable
+        if (data instanceof (oxigraph.Store)) {
+            store = data;
+        } else if (typeof data === "object") {
+            store = new oxigraph.Store();
+            store.load(data.value, { format: data.format });
+        }
+
+        // get score def files
+        const promises = await Promise.all(scoreTypes.map(s => {
+            return fetch(`${DEFINITION_URL_PREFIX}/${s.toLowerCase()}Def.yaml`).then(r => r.text()).then(r => {
+                const obj = parseYaml(r) as ScoreDefObj;
+                return { score: s, def: obj }
+            });
+        }));
+        const scoreDefs = promises.reduce((obj, curr) => {
+            obj[curr.score] = curr.def;
+            return obj
+        }, {} as Record<string, ScoreDefObj>);
+
+        return new Scoring(scoreDefs, store);
+    }
+
+    /**
+     * 
+     * 
+     * @param iri 
+     * @param scoreType 
+     * @param data 
+     * @param endpoint 
+     * @returns 
+     */
+    public score(iri: string, scoreType: string, output: "json" | "turtle", data?: { value: string, format: Format }, endpoint?: EndpointConfig): ScoreValueObj | string {
+        if (data) {
+            this.store?.update("DROP ALL");
+            this.store?.load(data.value, { format: data.format });
+        }
+
+        const { dag, scoredObj } = buildDag(this.scoreDefs[scoreType]); // could move to init(), have a factory function for creating new scoredObjs
+
+        Object.keys(this.scoreDefs[scoreType]).forEach(key => {
+            scoreByKey(key, this.scoreDefs[scoreType], dag, scoredObj, this.store, iri, endpoint);
+        });
+
+        if (output === "json") {
+            return scoredObj;
+        } else if (output === "turtle") {
+            return generateRDFScores(iri, scoreType, scoredObj);
+        } else {
+            throw new TypeError("Invalid output format. Supported output formats are: 'json', 'turtle'");
+        }
+    }
+
+    // output score as either JS obj or RDF
+
+    /**
+     * 
+     * 
+     * @param iri 
+     * @param scoreType 
+     * @param data 
+     * @param endpoint 
+     */
+    // public parse(iri: string, scoreType: string, data?: {value: string, format: Format}, endpoint?: EndpointConfig): ScoreValueObj {
+    //     if (data) {
+    //         this.store?.update("DROP ALL");
+    //         this.store?.load(data.value, {format: data.format});
+    //     }
+
+
+    // }
 }
