@@ -1,22 +1,55 @@
-# Template for building your own Vue.js + TypeScript component library
-A starter template for easily getting started with creating your own Vue.js component library with TypeScript.
+# IDN Score Vue Component Library
 
-## CSS
-This template requires the consumer application to import the global CSS file from the component library (which is the default behaviour for Vite in library mode):
+## Install
+Run (requires GitHub token auth as this package is hosted on GitHub's NPM registry)
 
-```typescript
-// main.ts
-import "vue-component-lib-template/vue-component-lib-template.css"
+```bash
+npm install @idn-au/score-component-lib
 ```
 
-For injecting component styling into each component instead of importing a global CSS file, I recommend using [`vite-plugin-libcss`](https://github.com/wxsms/vite-plugin-libcss):
+## Use
 
-```typescript
-// vite.config.ts
-...
-import libCss from "vite-plugin-libcss";
+```vue
+<script lang="ts" setup>
+import { Scores, type TopScoreValueObj } from "@idn-au/score-component-lib";
 
-export default defineConfig({
-    plugins: [vue(), vueDevTools(), dts(), libCss()],
-...
+const scoreData: TopScoreValueObj = {
+    "version": "0.2.0",
+    "refResource": "https://example.com/example1",
+    "created": "2025-05-19T12:08:59",
+    "scores": {
+        "f": {
+            "title": "Findable",
+            "description": "Metadata and data should be easy to find for both humans and computers.",
+            "value": 15,
+            "max": 15,
+            "scores": {
+                ...
+            },
+        },
+        ...
+    },
+};
+</script>
+
+<template>
+    <Scores title="FAIR" :score="scoreData" />
+</template>
+```
+
+![FAIR Score preview](./docs/FAIR.png)
+
+![FAIR Score expanded](./docs/FAIR_modal.png)
+
+## Development
+Install dependencies (requires PNPM):
+
+```bash
+pnpm install
+```
+
+Run locally:
+
+```bash
+pnpm dev
 ```

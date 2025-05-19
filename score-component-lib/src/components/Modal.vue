@@ -9,7 +9,7 @@ const model = defineModel<boolean>();
         <DialogTrigger as-child>
             <slot name="trigger" />
         </DialogTrigger>
-        <DialogContent class="w-[90%] max-w-[800px] grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]">
+        <DialogContent class="w-[90%] sm:max-w-[800px] grid-rows-[auto_minmax(0,1fr)_auto] p-0 max-h-[90dvh]">
             <DialogHeader class="p-6 pb-0">
                 <DialogTitle v-if="$slots.title">
                     <slot name="title" />
@@ -18,7 +18,7 @@ const model = defineModel<boolean>();
                     <slot name="description" />
                 </DialogDescription>
             </DialogHeader>
-            <div class="modal-content py-4 px-6 overflow-y-auto">
+            <div class="modal-content pt-4 px-6 overflow-y-auto">
                 <slot />
             </div>
             <DialogFooter v-if="$slots.footer" class="p-6 pt-0 sm:justify-between">

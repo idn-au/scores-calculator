@@ -1,6 +1,6 @@
 {
     "name": "@idn-au/score-component-lib",
-    "version": "0.1.8",
+    "version": "0.2.0",
     "type": "module",
     "repository": {
         "type": "git",
@@ -42,25 +42,25 @@
         "vue": "^3.0.0"
     },
     "dependencies": {
+        "@idn-au/scores-calculator-js": "workspace:@idn-au/scores-calculator-js@*",
+        "@tailwindcss/vite": "^4.1.7",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "lucide-vue-next": "^0.483.0",
-        "radix-vue": "^1.9.10",
-        "@idn-au/scores-calculator-js": "workspace:@idn-au/scores-calculator-js@*",
-        "tailwind-merge": "^2.5.5",
-        "tailwindcss-animate": "^1.0.7"
+        "lucide-vue-next": "^0.510.0",
+        "reka-ui": "^2.2.1",
+        "tailwind-merge": "^3.3.0",
+        "tailwindcss": "^4.1.7",
+        "tw-animate-css": "^1.2.9"
     },
     "devDependencies": {
         "@types/jsdom": "^21.1.7",
-        "@types/node": "^22.15.8",
-        "@vitejs/plugin-vue": "^5.2.3",
+        "@types/node": "^22.15.18",
+        "@vitejs/plugin-vue": "^5.2.4",
         "@vue/test-utils": "^2.4.6",
-        "autoprefixer": "^10.4.20",
-        "jsdom": "^25.0.1",
-        "tailwindcss": "^3.4.15",
-        "typescript": "~5.6.3",
+        "jsdom": "^26.1.0",
+        "typescript": "^5.8.3",
         "vite": "^6.3.5",
-        "vite-plugin-dts": "^4.5.3",
+        "vite-plugin-dts": "^4.5.4",
         "vite-plugin-vue-devtools": "^7.7.6",
         "vitest": "^2.1.9",
         "vue-tsc": "^2.2.10"

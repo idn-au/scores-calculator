@@ -1,6 +1,6 @@
 {
     "name": "@idn-au/scores-calculator-js",
-    "version": "0.1.8",
+    "version": "0.2.0",
     "type": "module",
     "files": [
         "dist"
@@ -9,9 +9,9 @@
     "module": "./dist/scores-calculator-js.js",
     "exports": {
         ".": {
+            "types": "./dist/index.d.ts",
             "import": "./dist/scores-calculator-js.js",
-            "require": "./dist/scores-calculator-js.umd.cjs",
-            "types": "./dist/index.d.ts"
+            "require": "./dist/scores-calculator-js.umd.cjs"
         }
     },
     "types": "./dist/index.d.ts",
@@ -25,17 +25,20 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "vite build && tsc --emitDeclarationOnly",
-        "preview": "vite preview"
+        "build": "tsc && vite build",
+        "types": "tsc",
+        "preview": "vite preview",
+        "preinstall": "npx only-allow pnpm"
     },
     "devDependencies": {
         "@types/jsonld": "^1.5.15",
         "typescript": "^5.8.3",
-        "vite": "^5.4.1"
+        "vite": "^6.3.5",
+        "vite-plugin-dts": "^4.5.3"
     },
     "dependencies": {
         "jsonld": "^8.3.3",
-        "oxigraph": "0.4.9",
-        "yaml": "^2.7.1"
+        "oxigraph": "0.4.10",
+        "yaml": "^2.8.0"
     }
 }

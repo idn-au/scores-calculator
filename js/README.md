@@ -12,10 +12,10 @@ npm install @idn-au/scores-calculator-js
 ```javascript
 import { Scoring } from "@idn-au/scores-calculator-js";
 
-const data = "<sdkjlhsd> <sdlkflksdf> <lksdjflksdf>";
+const data = "your RDF data";
 
-const scoring = await Scoring.init(["fair"], {value: data, format: "n-triples"});
-const score = scoring.score("https://example.com/resource", "fair");
+const scoring = await Scoring.init(["fair"], { value: data, format: "n-triples" });
+const score = scoring.score("https://example.com/resource", "fair", "json");
 ```
 
 You can also provide your own Oxigraph Store if you have one instead of passing string data and the scoring library will use that Store instead of creating its own.

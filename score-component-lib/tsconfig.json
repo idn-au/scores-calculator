@@ -19,6 +19,7 @@
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
+        "baseUrl": ".",
         "paths": {
             "@/*": [
                 "./src/*"
@@ -33,6 +34,7 @@
     ],
     "exclude": [
         "src/main.ts",
+        "src/App.vue",
         "src/**/__tests__/*"
     ],
 }

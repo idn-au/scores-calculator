@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import Scores from "@/components/Scores.vue";
-import { Scoring } from "@idn-au/scores-calculator-js";
 import { ref, onMounted } from "vue";
+import { Scoring, TopScoreValueObj } from "@idn-au/scores-calculator-js";
+import Scores from "./components/Scores.vue";
 
 const example = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -71,26 +71,26 @@ _:b2 a sdo:DigitalDocument ;
 .
 `;
 
-let scoring;
+let scoring: Scoring;
 
-const fair = ref({});
-const care = ref({});
+const fair = ref({} as TopScoreValueObj);
+const care = ref({} as TopScoreValueObj);
 
 onMounted(async () => {
     scoring = await Scoring.init(["fair", "care"], { value: example, format: "text/turtle" });
-    await doScoring();
+    await doScoring(scoring);
 });
 
-function fairScore() {
-    return scoring.score("https://example.com/example1", "fair");
+function fairScore(scoring: Scoring): TopScoreValueObj {
+    return scoring.score("https://example.com/example1", "fair", "json") as TopScoreValueObj;
 }
 
-function careScore() {
-    return scoring.score("https://example.com/example1", "care");
+function careScore(scoring: Scoring): TopScoreValueObj {
+    return scoring.score("https://example.com/example1", "care", "json") as TopScoreValueObj;
 }
 
-async function doScoring() {
-    const p = await Promise.all([fairScore(), careScore()]);
+async function doScoring(scoring: Scoring) {
+    const p = await Promise.all([fairScore(scoring), careScore(scoring)]);
     fair.value = p[0];
     care.value = p[1];
 }
@@ -100,8 +100,8 @@ async function doScoring() {
     <div>
         <h1>Scores Vue Component Library</h1>
         <div>
-            <Scores title="FAIR" :scores="fair" />
-            <Scores title="CARE" :scores="care" />
+            <Scores title="FAIR" :score="fair" />
+            <Scores title="CARE" :score="care" />
         </div>
     </div>
 </template>

@@ -1,4 +1,4 @@
-name: Build & publish npm package to GitHub Packages
+name: Publish NPM packages to GitHub registry
 on:
   release:
     types:
@@ -6,9 +6,6 @@ on:
   workflow_dispatch:
 jobs:
   publish:
-    defaults:
-      run:
-        working-directory: js
     runs-on: ubuntu-latest 
     permissions: 
       contents: read
@@ -27,12 +24,23 @@ jobs:
           node-version: 20
           cache: 'pnpm'
           registry-url: 'https://npm.pkg.github.com'
-          cache-dependency-path: js/pnpm-lock.yaml
-      - name: Install dependencies
+      - name: Install workspace
         run: pnpm install
-      - name: Build package
+      # js
+      - name: Build JS lib
+        working-directory: js
         run: pnpm build
-      - name: Publish to GitHub NPM Registry
+      - name: Publish JS lib to GitHub NPM Registry
+        working-directory: js
+        run: pnpm publish --publish-branch feature/refactor --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # vue component lib
+      - name: Build component lib
+        working-directory: score-component-lib
+        run: pnpm build
+      - name: Publish component lib to GitHub NPM Registry
+        working-directory: score-component-lib
         run: pnpm publish --publish-branch feature/refactor --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

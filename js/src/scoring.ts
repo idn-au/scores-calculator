@@ -1,10 +1,9 @@
 import init, * as oxigraph from "oxigraph/web";
 import { parse as parseYaml } from "yaml";
-import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag, EndpointConfig } from "./types";
-import packageJSON from "../package.json";
+import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag, EndpointConfig, TopScoreValueObj } from "./types";
 
-const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.9/web_bg.wasm";
-const DEFINITION_URL_PREFIX = "https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions";
+const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.10/web_bg.wasm"; // update when oxigraph version changes
+const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -180,9 +179,14 @@ function scoreByKey(key: string, obj: ScoreDefObj, dag: Dag, scoredObj: ScoreVal
  * @param obj 
  * @returns 
  */
-function buildDag(obj: ScoreDefObj): { dag: Dag, scoredObj: ScoreValueObj } {
+function buildDag(iri: string, obj: ScoreDefObj): { dag: Dag, scoredObj: TopScoreValueObj } {
     const dag: Dag = {};
-    const scoredObj = traverseScores(obj, dag);
+    const scoredObj: TopScoreValueObj = {
+        version: __APP_VERSION__,
+        refResource: iri,
+        created: new Date().toISOString().split(".")[0],
+        scores: traverseScores(obj, dag),
+    };
 
     return { dag, scoredObj };
 }
@@ -210,7 +214,7 @@ function generateRDFScoreByKey(key: string, scoreType: string, store: oxigraph.S
     }
 }
 
-function generateRDFScores(iri: string, scoreType: string, scoredObj: ScoreValueObj): string {
+function generateRDFScores(scoreType: string, scoredObj: TopScoreValueObj): string {
     const store = new oxigraph.Store();
     store.load(`PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -219,19 +223,18 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX scores: <https://linked.data.gov.au/def/scores/>
 PREFIX sdo: <https://schema.org/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`, {format: "text/turtle"});
-    const resource = oxigraph.namedNode(iri);
+    const resource = oxigraph.namedNode(scoredObj.refResource);
     store.add(oxigraph.triple(resource, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://www.w3.org/ns/dcat#Resource")));
     const scoresBNode = oxigraph.blankNode();
     store.add(oxigraph.triple(resource, oxigraph.namedNode("https://linked.data.gov.au/def/scores/hasScore"), scoresBNode));
     store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("https://linked.data.gov.au/def/scores/refResource"), resource));
-    const currentDateTime = new Date().toISOString().split(".")[0];
-    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://purl.org/dc/terms/created"), oxigraph.literal(currentDateTime, oxigraph.namedNode("http://www.w3.org/2001/XMLSchema#dateTime"))));
-    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("https://schema.org/version"), oxigraph.literal(packageJSON.version)));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://purl.org/dc/terms/created"), oxigraph.literal(scoredObj.created, oxigraph.namedNode("http://www.w3.org/2001/XMLSchema#dateTime"))));
+    store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("https://schema.org/version"), oxigraph.literal(scoredObj.version)));
     store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode("http://purl.org/linked-data/cube#ObservationGroup")));
     store.add(oxigraph.triple(scoresBNode, oxigraph.namedNode("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"), oxigraph.namedNode(`https://linked.data.gov.au/def/scores/${scoreType.charAt(0).toUpperCase() + scoreType.substring(1).toLowerCase()}Score`)));
 
-    Object.keys(scoredObj).forEach(key => {
-        generateRDFScoreByKey(key, scoreType, store, scoredObj[key], scoresBNode);
+    Object.keys(scoredObj.scores).forEach(key => {
+        generateRDFScoreByKey(key, scoreType, store, scoredObj.scores[key], scoresBNode);
     });
 
     return store.dump({ format: "text/turtle", from_graph_name: oxigraph.defaultGraph() });
@@ -261,7 +264,7 @@ export class Scoring {
             store = new oxigraph.Store();
             store.load(data.value, { format: data.format });
         }
-
+        
         // get score def files
         const promises = await Promise.all(scoreTypes.map(s => {
             return fetch(`${DEFINITION_URL_PREFIX}/${s.toLowerCase()}Def.yaml`).then(r => r.text()).then(r => {
@@ -286,22 +289,22 @@ export class Scoring {
      * @param endpoint 
      * @returns 
      */
-    public score(iri: string, scoreType: string, output: "json" | "turtle", data?: { value: string, format: Format }, endpoint?: EndpointConfig): ScoreValueObj | string {
+    public score(iri: string, scoreType: string, output: "json" | "turtle", data?: { value: string, format: Format }, endpoint?: EndpointConfig): TopScoreValueObj | string {
         if (data) {
             this.store?.update("DROP ALL");
             this.store?.load(data.value, { format: data.format });
         }
 
-        const { dag, scoredObj } = buildDag(this.scoreDefs[scoreType]); // could move to init(), have a factory function for creating new scoredObjs
+        const { dag, scoredObj } = buildDag(iri, this.scoreDefs[scoreType]); // could move to init(), have a factory function for creating new scoredObjs
 
         Object.keys(this.scoreDefs[scoreType]).forEach(key => {
-            scoreByKey(key, this.scoreDefs[scoreType], dag, scoredObj, this.store, iri, endpoint);
+            scoreByKey(key, this.scoreDefs[scoreType], dag, scoredObj.scores, this.store, iri, endpoint);
         });
 
         if (output === "json") {
             return scoredObj;
         } else if (output === "turtle") {
-            return generateRDFScores(iri, scoreType, scoredObj);
+            return generateRDFScores(scoreType, scoredObj);
         } else {
             throw new TypeError("Invalid output format. Supported output formats are: 'json', 'turtle'");
         }

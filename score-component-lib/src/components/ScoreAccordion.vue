@@ -6,15 +6,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import CircleProgress from "@/components/CircleProgress.vue";
 
 const props = defineProps<{
-    scoreObj: ScoreValueObj;
+    scores: ScoreValueObj;
 }>();
 </script>
 
 <template>
     <Accordion type="single" collapsible>
-        <AccordionItem v-for="[key, score] in Object.entries(props.scoreObj)" :value="key">
-            <AccordionTrigger>
-                <div class="flex flex-row gap-4 flex-grow">
+        <AccordionItem v-for="[key, score] in Object.entries(props.scores)" :value="key" class="">
+            <AccordionTrigger class="cursor-pointer hover:bg-accent/50 hover:no-underline p-4">
+                <div class="flex flex-row gap-4 flex-grow items-start">
                     <CircleProgress :value="score.value" :max="score.max" class="max-w-20" />
                     <div class="flex flex-col gap-2 text-left flex-grow">
                         <h3>{{ score.title }}</h3>
@@ -22,13 +22,13 @@ const props = defineProps<{
                     </div>
                 </div>
             </AccordionTrigger>
-            <AccordionContent>
-                <Card v-if="score.scores">
-                    <CardContent>
-                        <ScoreAccordion :scoreObj="score.scores" class="ml-4" />
+            <AccordionContent class="p-0">
+                <Card v-if="score.scores" class="p-0 m-4">
+                    <CardContent class="p-0">
+                        <ScoreAccordion :scores="score.scores" class="" />
                     </CardContent>
                 </Card>
-                <div v-else-if="score.requirements" class="flex flex-col gap-2">
+                <div v-else-if="score.requirements" class="flex flex-col gap-2 p-4">
                     <div v-if="score.prerequisites" :class="`flex flex-row gap-2 items-start mb-2 ${score.prerequisites.enabled ? '' : 'text-muted-foreground'}`">
                         <SquareCheckBig v-if="score.prerequisites.enabled" class="h-4 w-4 shrink-0" />
                         <Square v-else class="h-4 w-4 shrink-0" />

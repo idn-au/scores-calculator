@@ -71,6 +71,13 @@ export type ScoreDefObj = {
     [key: string]: ScoreDef;
 };
 
+export type TopScoreValueObj = {
+    version: string;
+    created: string;
+    refResource: string;
+    scores: ScoreValueObj;
+};
+
 export type ScoreValueObj = {
     [key: string]: ScoreValue;
 };

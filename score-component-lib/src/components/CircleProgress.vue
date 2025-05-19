@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { computed } from "vue";
 import { Check } from "lucide-vue-next";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const props = defineProps<{
     value?: number;
@@ -8,6 +9,7 @@ const props = defineProps<{
     percentage?: number;
     label?: string;
     tickWhenComplete?: boolean;
+    loading?: boolean;
 }>();
 
 const percent = computed(() => {
@@ -28,8 +30,14 @@ const percentGradient = computed(() => {
 </script>
 
 <template>
-    <div class="rounded-full w-full aspect-square relative shrink-0" :style="{ background: `conic-gradient(${percentGradient} ${percent}%, 0, rgba(80, 80, 80, 0.2) ${100 - percent}%)` }">
-        <div class="rounded-full bg-background flex items-center justify-center absolute inset-2">
+    <div v-if="props.loading" class="relative w-full">
+        <Skeleton class="rounded-full aspect-square" />
+        <div class="rounded-full bg-background text-foreground flex items-center justify-center absolute inset-2">
+            <Skeleton class="rounded w-5 h-4" />
+        </div>
+    </div>
+    <div v-else class="rounded-full w-full aspect-square relative shrink-0" :style="{ background: `conic-gradient(${percentGradient} ${percent}%, 0, rgba(80, 80, 80, 0.2) ${100 - percent}%)` }">
+        <div class="rounded-full bg-background text-foreground flex items-center justify-center absolute inset-2">
             <span class="text-sm">
                 <template v-if="props.label">{{ props.label }}</template>
                 <template v-else-if="props.tickWhenComplete && percent === 100">
