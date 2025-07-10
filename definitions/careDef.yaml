@@ -26,7 +26,7 @@ c:
       requirements:
         - value: 1
           description: Metadata is discoverable via the internet (i.e. IRI resolves)
-          query: "ASK { #iri# ?p ?o }" # ignore - can't query for resolvable URLs in data?
+          resolvable: self
         - value: 1
           description: Data title exists
           query: "ASK { #iri# dcterms:title ?title }"
@@ -192,7 +192,7 @@ r:
       requirements:
         - value: 2
           description: Custodian (Role) Agent has identified a resolvable URL link to, OR text description of, an Indigenous Data Governance Framework or Indigenous Data Committee in the metadata record
-          query: | # query can't check for resolvable URLs
+          query: |
             ASK {
                 #iri# prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
@@ -201,6 +201,18 @@ r:
                 ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
                     sdo:url|sdo:description ?o .
             }
+          resolvable:
+            query: |
+              SELECT ?url
+              WHERE {
+                #iri# prov:qualifiedAttribution ?agentRole .
+                ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+                    prov:agent ?agent .
+                ?agent prov:contributed ?idgf .
+                ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+                    sdo:url ?url .
+              }
+            variable: url
     r3:
       title: R3
       description: For Indigenous languages and worldviews
@@ -218,7 +230,7 @@ r:
               value: max
         - value: 1
           description: Custodian (Role) Agent has identified a resolvable URL link to, OR text description of, an Indigenous Data Governance Framework or Indigenous Data Committee in the metadata record
-          query: | # query can't check for resolvable URLs
+          query: |
             ASK {
                 #iri# prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
@@ -227,6 +239,18 @@ r:
                 ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
                     sdo:url ?url .
             }
+          resolvable:
+            query: |
+              SELECT ?url
+              WHERE {
+                #iri# prov:qualifiedAttribution ?agentRole .
+                ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+                    prov:agent ?agent .
+                ?agent prov:contributed ?idgf .
+                ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+                    sdo:url ?url .
+              }
+            variable: url
         - value: 1
           description: Spatial geometry has been identified
           query: "ASK { #iri# dcterms:spatial ?spatial }"

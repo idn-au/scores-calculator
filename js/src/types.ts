@@ -36,6 +36,10 @@ export type Requirement = {
     value: number;
     description: string;
     query?: string;
+    resolvable?: {
+        query: string;
+        variable: string;
+    } | "self";
     conditions?: Condition[];
 };
 
@@ -86,4 +90,20 @@ export type EndpointConfig = {
     url: string;
     username?: string;
     password?: string;
+};
+
+export type SPARQLResultsJSON = {
+    head: {
+        vars?: string[];
+        link?: string[];
+    },
+    results?: {
+        bindings: Record<string, {
+            type: "uri" | "literal" | "bnode";
+            value: string;
+            "xml:lang"?: string;
+            datatype?: string;
+        }>[];
+    },
+    boolean?: boolean;
 };

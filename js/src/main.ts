@@ -29,7 +29,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     ] ;
     dcterms:title "Example 1" ;
     dcat:distribution [
-        dcat:accessURL "https://example.com/distribution"^^xsd:anyURI ;
+        dcat:accessURL "https://data.idnau.org"^^xsd:anyURI ;
     ] ;
     dcat:theme <https://vocabularyserver.com/apais/xml.php?skosTema=181> ,
         <https://vocabularyserver.com/apais/xml.php?skosTema=147> ;
@@ -193,19 +193,21 @@ _:b2 a sdo:DigitalDocument ;
 
 const scoring = await Scoring.init(["fair", "care"], { value: example, format: "text/turtle" });
 
-function fairScore(output: "json" | "turtle") {
-    return scoring.score("https://example.com/example1", "fair", output);
+async function fairScore(output: "json" | "turtle") {
+    return await scoring.score("https://example.com/example1", "fair", output);
 }
 
-function careScore(output: "json" | "turtle") {
-    return scoring.score("https://example.com/example1", "care", output);
+async function careScore(output: "json" | "turtle") {
+    return await scoring.score("https://example.com/example1", "care", output);
 }
 
 function doScoringJSON() {
     document.querySelector<HTMLButtonElement>("#scoreJSONButton")!.addEventListener("click", async () => {
         document.querySelector<HTMLPreElement>("#data")!.innerText = example;
         const [fair, care] = await Promise.all([fairScore("json"), careScore("json")]);
+        // const fair = await fairScore("json");
         document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify({fair, care}, null, 2);
+        // document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify(fair, null, 2);
     });
 }
 
@@ -213,7 +215,9 @@ function doScoringRDF() {
     document.querySelector<HTMLButtonElement>("#scoreRDFButton")!.addEventListener("click", async () => {
         document.querySelector<HTMLPreElement>("#data")!.innerText = example;
         const [fair, care] = await Promise.all([fairScore("turtle"), careScore("turtle")]);
+        // const fair = await fairScore("turtle");
         document.querySelector<HTMLPreElement>("#score")!.innerText = `-----FAIR-----\n${fair}\n\n-----CARE-----\n${care}`;
+        // document.querySelector<HTMLPreElement>("#score")!.innerText = fair as string;
     });
 }
 

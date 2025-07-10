@@ -14,7 +14,7 @@ f:
           query: "ASK { #iri# ?p ?o }" # if IRI exists then ID is a valid URL
         - value: 3
           description: Metadata identifier is globally unique, citable and persistent
-          query: "ASK { #iri# ?p ?o }" # ignore - can't query for resolvable URLs in data?
+          resolvable: self
     f2:
       title: F2
       description: Data are described with rich metadata
@@ -48,11 +48,19 @@ f:
       requirements:
         - value: 2
           description: Distribution information is included as a resolvable URL
-          query: | # query can't check for resolvable URLs
+          query: |
             ASK {
                 #iri# dcat:distribution ?dist .
                 ?dist dcat:accessURL ?url .
             }
+          resolvable:
+            query: |
+              SELECT ?url
+              WHERE {
+                #iri# dcat:distribution ?dist .
+                ?dist dcat:accessURL ?url .
+              }
+            variable: url
     f4:
       title: F4
       description: (Meta)data are registered or indexed in a searchable resource
