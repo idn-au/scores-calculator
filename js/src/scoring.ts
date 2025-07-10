@@ -3,8 +3,8 @@ import { parse as parseYaml } from "yaml";
 import type { ScoreDef, ScoreDefObj, ScoreValue, ScoreValueObj, Format, Condition, Dag, EndpointConfig, TopScoreValueObj, Requirement, SPARQLResultsJSON } from "./types";
 
 const OXIGRAPH_WASM_URL = "https://cdn.jsdelivr.net/npm/oxigraph@0.4.10/web_bg.wasm"; // update when oxigraph version changes
-// const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
-const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions`;
+const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
+// const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@feature%2Frefactor/definitions`;
 // const DEFINITION_URL_PREFIX = "/definitions";
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
