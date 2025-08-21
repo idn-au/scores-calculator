@@ -14,7 +14,7 @@ npm install @idn-au/score-component-lib
 import { Scores, type TopScoreValueObj } from "@idn-au/score-component-lib";
 
 const scoreData: TopScoreValueObj = {
-    "version": "0.3.0",
+    "version": "0.3.1",
     "refResource": "https://example.com/example1",
     "created": "2025-05-19T12:08:59",
     "scores": {

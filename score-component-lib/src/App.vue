@@ -81,12 +81,12 @@ onMounted(async () => {
     await doScoring(scoring);
 });
 
-function fairScore(scoring: Scoring): TopScoreValueObj {
-    return scoring.score("https://example.com/example1", "fair", "json") as TopScoreValueObj;
+async function fairScore(scoring: Scoring): Promise<TopScoreValueObj> {
+    return await scoring.score("https://example.com/example1", "fair", "json") as TopScoreValueObj;
 }
 
-function careScore(scoring: Scoring): TopScoreValueObj {
-    return scoring.score("https://example.com/example1", "care", "json") as TopScoreValueObj;
+async function careScore(scoring: Scoring): Promise<TopScoreValueObj> {
+    return await scoring.score("https://example.com/example1", "care", "json") as TopScoreValueObj;
 }
 
 async function doScoring(scoring: Scoring) {
