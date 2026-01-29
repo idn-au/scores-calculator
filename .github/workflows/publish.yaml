@@ -1,0 +1,46 @@
+name: Publish NPM packages to GitHub registry
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+jobs:
+  publish:
+    runs-on: ubuntu-latest 
+    permissions: 
+      contents: read
+      packages: write 
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        name: Install pnpm
+        with:
+          version: 9
+          run_install: false
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          registry-url: 'https://npm.pkg.github.com'
+      - name: Install workspace
+        run: pnpm install
+      # js
+      - name: Build JS lib
+        working-directory: js
+        run: pnpm build
+      - name: Publish JS lib to GitHub NPM Registry
+        working-directory: js
+        run: pnpm publish --publish-branch feature/refactor --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # vue component lib
+      - name: Build component lib
+        working-directory: score-component-lib
+        run: pnpm build
+      - name: Publish component lib to GitHub NPM Registry
+        working-directory: score-component-lib
+        run: pnpm publish --publish-branch feature/refactor --no-git-checks
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
