@@ -1073,7 +1073,7 @@ You need to indicate the calculation being performed - "fair", "care" or "lc" an
 
 The developers of this software - the Indigenous Data Network - recognise that it will be of value beyond their scope, i.e. for non-indigenous, non-Australia data, and are very happy to collaborate with anyone to improve the code. Improvements for others will surely improve the IDN's own assessments of indigenous Australian data after all.
 
-To collaborate, please formulate https://docs.github.com/en/pull-requests[_Pull Requests_] against this codebase which the IDN team will review. If you are uncertain about the scpe/direction etc. of a potential PR, please just be in touch and ask up! You could raise an Issue in this codebase's https://github.com/idn-au/scores-calculator/issues[Issue Tracker] to test the waters...
+To collaborate, please formulate https://docs.github.com/en/pull-requests[_Pull Requests_] against this codebase which the IDN team will review. If you are uncertain about the scope/direction etc. of a potential PR, please just be in touch and ask up! You could raise an Issue in this codebase's https://github.com/idn-au/scores-calculator/issues[Issue Tracker] to test the waters...
 
 == Licensing & Rights
 
