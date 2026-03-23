@@ -1,7 +1,6 @@
-// import { type ContextDefinition } from "jsonld";
-// import * as jsonld from "jsonld";
-import { Scoring } from "./scoring";
-// import { Frame } from "jsonld/jsonld-spec";
+import init, * as oxigraph from "oxigraph/web";
+import { ScoreCalculator } from "./score";
+import type {SPARQLResultsJSON} from "./types.ts";
 
 const example = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -71,134 +70,46 @@ _:b2 a sdo:DigitalDocument ;
 .
 `;
 
-// const rdf = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
-// PREFIX dcterms: <http://purl.org/dc/terms/>
-// PREFIX qb: <http://purl.org/linked-data/cube#>
-// PREFIX scores: <https://linked.data.gov.au/def/scores/>
-// PREFIX sdo: <https://schema.org/>
-// PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+const emptyData = "";
 
-// <https://example.com/resource>
-//     a dcat:Resource ;
-//     scores:hasScore [
-//         a
-//             qb:ObservationGroup ,
-//             scores:FairScore ;
-//         qb:observation
-//             [
-//                 a qb:Observation ;
-//                 scores:fairFScore [
-//                     a qb:ObservationGroup ;
-//                     qb:observation [
-//                         a qb:Observation ;
-//                         scores:fairF1Score 4 ;
-//                     ] ,
-//                     [
-//                         a qb:Observation ;
-//                         scores:fairF2Score 3 ;
-//                     ] ,
-//                     [
-//                         a qb:Observation ;
-//                         scores:fairF3Score [
-//                             a qb:ObservationGroup ;
-//                             qb:observation [
-//                                 a qb:Observation ;
-//                                 scores:fairF3Req1Score 4 ;
-//                             ] ,
-//                             [
-//                                 a qb:Observation ;
-//                                 scores:fairF3Req2Score 1 ;
-//                             ] ,
-//                             [
-//                                 a qb:Observation ;
-//                                 scores:fairF3Req3Score 2 ;
-//                             ] ;
-//                         ] ;
-//                     ] ;
-//                 ] ;
-//             ] ,
-//             [
-//                 a qb:Observation ;
-//                 scores:fairAScore 0 ;
-//             ] ,
-//             [
-//                 a qb:Observation ;
-//                 scores:fairIScore 6 ;
-//             ] ,
-//             [
-//                 a qb:Observation ;
-//                 scores:fairRScore 3 ;
-//             ] ;
-//         scores:refResource <https://example.com/resource> ;
-//         dcterms:created "2025-05-06T05:47:41"^^xsd:dateTime ;
-//         sdo:version "0.1.0" ;
-//     ] ;
-// .
-// `;
-
-// const context: ContextDefinition = {
-//     // prefixes
-//     "dcat": "http://www.w3.org/ns/dcat#",
-//     "dcterms": "http://purl.org/dc/terms/",
-//     "qb": "http://purl.org/linked-data/cube#",
-//     "scores": "https://linked.data.gov.au/def/scores/",
-//     "sdo": "https://schema.org/",
-//     "xsd": "http://www.w3.org/2001/XMLSchema#",
-//     // aliases
-//     "id": "@id",
-//     "type": "@type",
-//     "value": "@value",
-//     "created": {
-//         "@id": "dcterms:created",
-//         "@type": "xsd:dateTime",
-//     },
-//     "refResource": {
-//         "@id": "scores:refResource",
-//         "@type": "@id",
-//     },
-//     "hasScore": "scores:hasScore",
-//     "version": "sdo:version",
-//     "scores_obj": {
-//         "@id": "qb:observation",
-//         "@type": "@id",
-//     },
-//     "F": {
-//         "@id": "scores:fairFScore",
-//         "@type": "@id",
-//     },
-//     "A": {
-//         "@id": "scores:fairAScore",
-//         // "@type": "@id",
-//     },
-//     "I": {
-//         "@id": "scores:fairIScore",
-//         // "@type": "@id",
-//     },
-//     "R": {
-//         "@id": "scores:fairRScore",
-//         // "@type": "@id",
-//     },
-// };
-
-// const frame: Frame = {
-//     "@context": context,
-//     type: "dcat:Resource",
-//     "scores:hasScore": {
-//         type: "qb:ObservationGroup",
-//         // "scores_obj": {
-//         //     type: "qb:Observation",
-//         // }
-//     },
-// };
-
-const scoring = await Scoring.init(["fair", "care"], { value: example, format: "text/turtle" });
+function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false): SPARQLResultsJSON | boolean {
+    const options = {use_default_graph_as_union: true};
+    if (!ask) {
+        options.results_format = "application/sparql-results+json"
+    }
+    let result = store.query(query, options);
+    if (!ask) {
+        result = JSON.parse(result as string) as SPARQLResultsJSON;
+    }
+    return result;
+}
 
 async function fairScore(output: "json" | "turtle") {
-    return await scoring.score("https://example.com/example1", "fair", output);
+    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.6/web_bg.wasm"});
+    const store = new oxigraph.Store();
+    store.load(example, { format: "text/turtle" });
+
+    function askQuery(query: string): boolean {
+        const result = store.query(query, {use_default_graph_as_union: true});
+        return result;
+    }
+
+    function selectQuery(query: string): SPARQLResultsJSON {
+        const result = store.query(query, {use_default_graph_as_union: true, results_format: "application/sparql-results+json",});
+        return JSON.parse(result);
+    }
+
+    const calculator = await ScoreCalculator.init(["fair"]);
+    return await calculator.score("https://example.com/example1", "fair", output, askQuery, selectQuery);
 }
 
 async function careScore(output: "json" | "turtle") {
-    return await scoring.score("https://example.com/example1", "care", output);
+    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.6/web_bg.wasm"});
+    const store = new oxigraph.Store();
+    store.load(example, { format: "text/turtle" });
+
+    const calculator = await ScoreCalculator.init(["care"]);
+    return await calculator.score("https://example.com/example1", "care", output, (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query));
 }
 
 function doScoringJSON() {
@@ -211,30 +122,13 @@ function doScoringJSON() {
     });
 }
 
-function doScoringRDF() {
-    document.querySelector<HTMLButtonElement>("#scoreRDFButton")!.addEventListener("click", async () => {
-        document.querySelector<HTMLPreElement>("#data")!.innerText = example;
-        const [fair, care] = await Promise.all([fairScore("turtle"), careScore("turtle")]);
-        // const fair = await fairScore("turtle");
-        document.querySelector<HTMLPreElement>("#score")!.innerText = `-----FAIR-----\n${fair}\n\n-----CARE-----\n${care}`;
-        // document.querySelector<HTMLPreElement>("#score")!.innerText = fair as string;
-    });
-}
-
-// async function frameData() {
-//     scoring.store!.update("DROP ALL");
-//     scoring.store!.load(rdf, {format: "text/turtle"});
-//     const nquads = scoring.store!.dump({format: "application/n-quads"});
-//     const jsonldObj = await jsonld.fromRDF(nquads, { format: "application/n-quads" });
-//     return await jsonld.frame(jsonldObj, frame);
-// }
-
-// function setupFrameButton() {
-//     document.querySelector<HTMLButtonElement>("#frameButton")!.addEventListener("click", async () => {
-//         document.querySelector<HTMLPreElement>("#data")!.innerText = JSON.stringify(context, null, 2);
-//         const data = await frameData();
-//         delete data["@context"];
-//         document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify(data, null, 2);
+// function doScoringRDF() {
+//     document.querySelector<HTMLButtonElement>("#scoreRDFButton")!.addEventListener("click", async () => {
+//         document.querySelector<HTMLPreElement>("#data")!.innerText = example;
+//         const [fair, care] = await Promise.all([fairScore("turtle"), careScore("turtle")]);
+//         // const fair = await fairScore("turtle");
+//         document.querySelector<HTMLPreElement>("#score")!.innerText = `-----FAIR-----\n${fair}\n\n-----CARE-----\n${care}`;
+//         // document.querySelector<HTMLPreElement>("#score")!.innerText = fair as string;
 //     });
 // }
 
@@ -259,7 +153,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     <h1>JS Score Calculator</h1>
     <div>
         <button id="scoreJSONButton">Score JSON</button>
-        <button id="scoreRDFButton">Score RDF</button>
+<!--        <button id="scoreRDFButton">Score RDF</button>-->
         <button id="clearButton">Clear</button>
     </div>
     <div id="content">
@@ -275,6 +169,5 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 `;
 
 setupClearButton();
-// setupFrameButton();
 doScoringJSON();
-doScoringRDF();
+// doScoringRDF();

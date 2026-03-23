@@ -1,22 +1,3 @@
-export type Format = "text/turtle"
-    | "ttl"
-    // | "turtle"
-    | "application/trig"
-    | "trig"
-    | "application/n-triples"
-    // | "n-triples"
-    // | "ntriples"
-    | "nt"
-    | "application/n-quads"
-    // | "n-quads"
-    // | "nquads"
-    | "nq"
-    | "text/n3"
-    | "n3"
-    | "application/rdf+xml"
-    | "rdf"
-// | "xml";
-
 export type DagItem = {
     depends: string[];
     completed: boolean;
@@ -84,12 +65,6 @@ export type TopScoreValueObj = {
 
 export type ScoreValueObj = {
     [key: string]: ScoreValue;
-};
-
-export type EndpointConfig = {
-    url: string;
-    username?: string;
-    password?: string;
 };
 
 export type SPARQLResultsJSON = {

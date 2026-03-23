@@ -14,9 +14,9 @@ const props = defineProps<{
     <Accordion type="single" collapsible>
         <AccordionItem v-for="[key, score] in Object.entries(props.scores)" :value="key" class="">
             <AccordionTrigger class="cursor-pointer hover:bg-accent/50 hover:no-underline p-4">
-                <div class="flex flex-row gap-4 flex-grow items-start">
+                <div class="flex flex-row gap-4 grow items-start">
                     <CircleProgress :value="score.value" :max="score.max" class="max-w-16 md:max-w-20 transition-all" />
-                    <div class="flex flex-col gap-2 text-left flex-grow">
+                    <div class="flex flex-col gap-2 text-left grow">
                         <h3>{{ score.title }}</h3>
                         <p class="text-sm text-muted-foreground">{{ score.description }}</p>
                     </div>

@@ -1,19 +1,26 @@
-= Scores Calculators
+# Scores Calculator
 
-This is a Python package that can calculate https://www.go-fair.org/fair-principles/[FAIR], https://ardc.edu.au/resource/the-care-principles/[CARE] and other scores for datasets, based on DCAT-style metadata.
+This is a collection of packages that can calculate [FAIR](https://www.go-fair.org/fair-principles/), [CARE](https://ardc.edu.au/resource/the-care-principles/) and other scores for datasets, based on DCAT-style metadata.
 
-Individual FAIR, CARE & LC Labels assessments are performed in the _fair.py_ and similar files within the _calculators_ folder and the calculators module as a whole imports them all and can be used to run any of them.
+## Installation
+To install the NPM packages for the JavaScript scoring library and component library, you will need an authenticated token to install NPM packages from GitHub's NPM registry.
 
-== Installation
+Once you have access, you may install the packages by running the following:
 
-The Python dependencies for this package are given in the file _pyproject.toml_ in this folder which is expected to be used with Python's https://python-poetry.org/[Poetry] tool for environment establishment.
+```bash
+npm install @idn-au/scores-calculator-js
+```
 
-== Calculator logic
+```bash
+npm install @idn-au/score-component-lib
+```
 
-The logic used to generate scored or requirement for labels is given within comments in the script files. The logic is based on IDN deliberations or precedent, in the case of FAIR scores, and may be published in a more human-readable form when a complete first version of the scripts is working.
+## Calculator logic
 
-++++
-<p>FAIR</p>
+The tables below describe the scoring rules described in the YAML files in the [`/definitions`](/definitions) directory:
+
+### FAIR
+
 <table>
     <tr>
         <td>
@@ -543,7 +550,9 @@ The logic used to generate scored or requirement for labels is given within comm
         </td>
     </tr>
 </table>
-<p>CARE</p>
+
+### CARE
+
 <table>
     <tr>
         <td>
@@ -1083,24 +1092,20 @@ This software is copyright as follows:
 
 (c) Indigenous Data Network, 2023
 
-== Contact
+## Contacts
 
 For technical enquiries:
 
-**Jamie Feiss** +
-*Data Infrastructure Developer* +
-Indigenous Data Network +
-University of Melbourne +
+**Jamie Feiss**  
+*Data Infrastructure Developer*  
+Indigenous Data Network  
+University of Melbourne  
 jamie.feiss@unimelb.edu.au
 
 For policy:
 
-**Levi Murray** +
-*Strategic Data Manager* +
-Indigenous Data Network +
-University of Melbourne +
+**Levi Murray**  
+*Strategic Data Manager*  
+Indigenous Data Network  
+University of Melbourne  
 levi.murray@unimelb.edu.au
-
-_Owner Organisation_ +
-*Indigenous Data Network* +
-https://idnau.org

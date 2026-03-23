@@ -30,8 +30,8 @@ const percentGradient = computed(() => {
 </script>
 
 <template>
-    <Skeleton v-if="props.loading" class="size-4 rounded-none" />
-    <div v-else class="size-4 flex items-center justify-center" :style="{background: percentGradient}">
+    <Skeleton v-if="props.loading" class="size-4 rounded" />
+    <div v-else class="size-4 flex items-center justify-center rounded" :style="{background: percentGradient}">
         <Check v-if="props.tickWhenComplete && percent === 100" class="size-4 text-black" />
     </div>
 </template>

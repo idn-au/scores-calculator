@@ -1,7 +1,9 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
-import { Scoring, TopScoreValueObj } from "@idn-au/scores-calculator-js";
+import init, * as oxigraph from "oxigraph/web";
+import {ScoreCalculator, type SPARQLResultsJSON, TopScoreValueObj} from "@idn-au/scores-calculator-js";
 import Scores from "./components/Scores.vue";
+import CircleProgress from "@/components/CircleProgress.vue";
 
 const example = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -71,37 +73,49 @@ _:b2 a sdo:DigitalDocument ;
 .
 `;
 
-let scoring: Scoring;
+let scoring: ScoreCalculator;
 
 const fair = ref({} as TopScoreValueObj);
 const care = ref({} as TopScoreValueObj);
 
+const colorMode = ref("light");
+
+function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false): SPARQLResultsJSON | boolean {
+	const options = {use_default_graph_as_union: true};
+	if (!ask) {
+		options.results_format = "application/sparql-results+json"
+	}
+	let result = store.query(query, options);
+	if (!ask) {
+		result = JSON.parse(result as string) as SPARQLResultsJSON;
+	}
+	return result;
+}
+
 onMounted(async () => {
-    scoring = await Scoring.init(["fair", "care"], { value: example, format: "text/turtle" });
-    await doScoring(scoring);
+	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.6/web_bg.wasm"});
+	const store = new oxigraph.Store();
+	store.load(example, { format: "text/turtle" });
+
+	scoring = await ScoreCalculator.init(["fair", "care"]);
+
+	const p = await Promise.all([
+		scoring.score("https://example.com/example1", "fair", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query)),
+		scoring.score("https://example.com/example1", "care", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query))
+	]);
+
+	fair.value = p[0] as TopScoreValueObj;
+	care.value = p[1] as TopScoreValueObj;
 });
-
-async function fairScore(scoring: Scoring): Promise<TopScoreValueObj> {
-    return await scoring.score("https://example.com/example1", "fair", "json") as TopScoreValueObj;
-}
-
-async function careScore(scoring: Scoring): Promise<TopScoreValueObj> {
-    return await scoring.score("https://example.com/example1", "care", "json") as TopScoreValueObj;
-}
-
-async function doScoring(scoring: Scoring) {
-    const p = await Promise.all([fairScore(scoring), careScore(scoring)]);
-    fair.value = p[0];
-    care.value = p[1];
-}
 </script>
 
 <template>
-    <div>
-        <h1>Scores Vue Component Library</h1>
-        <div>
-            <Scores title="FAIR" :score="fair" />
-            <Scores title="CARE" :score="care" />
-        </div>
-    </div>
+	<div :class="colorMode">
+		<h1>Scores Vue Component Library</h1>
+		<button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">colour mode</button>
+		<div class="p-3 bg-background text-foreground">
+			<Scores title="FAIR" :score="fair" />
+			<Scores title="CARE" :score="care" />
+		</div>
+	</div>
 </template>
