@@ -11,7 +11,7 @@ npm install @idn-au/score-component-lib
 
 ```vue
 <script lang="ts" setup>
-import { Scores, type TopScoreValueObj } from "@idn-au/score-component-lib";
+import { type TopScoreValueObj } from "@idn-au/score-component-lib";
 
 const scoreData: TopScoreValueObj = {
     "version": "0.3.1",

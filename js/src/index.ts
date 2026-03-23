@@ -1,2 +1,2 @@
-export * from "./scoring";
+export * from "./score";
 export * from "./types";

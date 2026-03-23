@@ -23,23 +23,23 @@ const createdFormatted = computed(() => {
         <template #trigger>
             <div>
                 <!-- mobile -->
-                <div class="grid gap-2 w-min cursor-pointer hover:bg-accent/50 p-2 md:hidden" :style="{ gridTemplateColumns: `repeat(${title.length}, 1fr)` }">
+                <div class="grid gap-2 w-min cursor-pointer hover:bg-accent/30 transition-colors p-2 rounded-md md:hidden" :style="{ gridTemplateColumns: `repeat(${title.length}, 1fr)` }">
                     <div v-for="key in props.title.toLowerCase()" class="flex flex-col gap-1 items-center cursor-pointer">
                         <MobileProgress v-if="Object.keys(props.score).length > 0" :value="props.score.scores[key].value" :max="props.score.scores[key].max" tickWhenComplete />
                         <MobileProgress v-else loading />
-                        <div class="circle-name text-sm">{{ key.toUpperCase() }}</div>
+                        <div class="circle-name text-sm font-bold">{{ key.toUpperCase() }}</div>
                     </div>
                 </div>
                 <!-- desktop -->
-                <div class="hidden md:flex flex-col gap-3 cursor-pointer hover:bg-accent/50 p-2">
+                <div class="hidden md:flex flex-col gap-3 cursor-pointer hover:bg-accent/30 transition-colors p-2 rounded-md w-fit">
                     <div class="flex flex-row gap-2 items-center justify-between">
-                        <h5>{{ props.title }} Score</h5>
+                        <h5 class="font-bold">{{ props.title }} Score</h5>
                     </div>
                     <div class="grid gap-2 max-w-[360px]" :style="{ gridTemplateColumns: `repeat(${title.length}, 1fr)` }">
                         <div v-for="key in props.title.toLowerCase()" class="flex flex-col gap-1 items-center cursor-pointer">
                             <CircleProgress v-if="Object.keys(props.score).length > 0" :value="props.score.scores[key].value" :max="props.score.scores[key].max" tickWhenComplete />
                             <CircleProgress v-else loading />
-                            <div class="circle-name">{{ key.toUpperCase() }}</div>
+                            <div class="circle-name font-bold">{{ key.toUpperCase() }}</div>
                         </div>
                     </div>
                 </div>

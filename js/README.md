@@ -1,4 +1,4 @@
-# JavaScript Scoring Implementation
+# JavaScript Scoring Calculator
 
 ## Install
 Run (requires GitHub token auth as this package is hosted on GitHub's NPM registry)
@@ -10,15 +10,15 @@ npm install @idn-au/scores-calculator-js
 ## Use
 
 ```javascript
-import { Scoring } from "@idn-au/scores-calculator-js";
+import { ScoreCalculator } from "@idn-au/scores-calculator-js";
 
-const data = "your RDF data";
+// define your own SPARQL function(s)
+function askQuery(...) {...}
+function sparqlQuery(...) {...}
 
-const scoring = await Scoring.init(["fair"], { value: data, format: "n-triples" });
-const score = scoring.score("https://example.com/resource", "fair", "json");
+const scoring = await ScoreCalculator.init(["fair"]);
+const score = scoring.score("https://example.com/resource", "fair", "json", askQuery, sparqlQuery);
 ```
-
-You can also provide your own Oxigraph Store if you have one instead of passing string data and the scoring library will use that Store instead of creating its own.
 
 ## Development
 Install dependencies (requires PNPM):

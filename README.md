@@ -1,19 +1,26 @@
-= Scores Calculators
+# Scores Calculator
 
-This is a Python package that can calculate https://www.go-fair.org/fair-principles/[FAIR], https://ardc.edu.au/resource/the-care-principles/[CARE] and other scores for datasets, based on DCAT-style metadata.
+This is a collection of packages that can calculate [FAIR](https://www.go-fair.org/fair-principles/), [CARE](https://ardc.edu.au/resource/the-care-principles/) and other scores for datasets, based on DCAT-style metadata.
 
-Individual FAIR, CARE & LC Labels assessments are performed in the _fair.py_ and similar files within the _calculators_ folder and the calculators module as a whole imports them all and can be used to run any of them.
+## Installation
+To install the NPM packages for the JavaScript scoring library and component library, you will need an authenticated token to install NPM packages from GitHub's NPM registry.
 
-== Installation
+Once you have access, you may install the packages by running the following:
 
-The Python dependencies for this package are given in the file _pyproject.toml_ in this folder which is expected to be used with Python's https://python-poetry.org/[Poetry] tool for environment establishment.
+```bash
+npm install @idn-au/scores-calculator-js
+```
 
-== Calculator logic
+```bash
+npm install @idn-au/score-component-lib
+```
 
-The logic used to generate scored or requirement for labels is given within comments in the script files. The logic is based on IDN deliberations or precedent, in the case of FAIR scores, and may be published in a more human-readable form when a complete first version of the scripts is working.
+## Calculator logic
 
-++++
-<p>FAIR</p>
+The tables below describe the scoring rules described in the YAML files in the [`/definitions`](/definitions) directory:
+
+### FAIR
+
 <table>
     <tr>
         <td>
@@ -27,34 +34,22 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Metadata has an identifier [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# ?p ?o }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Metadata identifier is a URL [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# ?p ?o }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Metadata identifier is globally unique, citable and persistent [3]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
-                                </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>F2</p>
@@ -62,48 +57,39 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Resource title and description is included [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:title ?title ;
         dcterms:description ?desc .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Additional descriptive properties are present [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:type ?indigeneity }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>All recommended descriptive properties are present [3]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:title ?title ;
         dcterms:description ?desc ;
         dcterms:type ?indigeneity ;
         dcat:theme ?theme ;
         prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/pointOfContact&gt; ;
         prov:agent ?agent .
     ?agent sdo:email|sdo:telephone ?contact .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>F3</p>
@@ -111,20 +97,17 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Distribution information is included as a resolvable URL [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcat:distribution ?dist .
     ?dist dcat:accessURL ?url .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>F4</p>
@@ -132,18 +115,14 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Data is described in a repository [3]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcat:distribution ?dist }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Data is discoverable through several registries [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
-                                    <pre>ASK WHERE { 
+                                <td colspan="2"><p>Query</p>
+                                    <pre>ASK WHERE {
   {
     SELECT ?resource (count(?dist) as ?dist_count)
     WHERE {
@@ -152,11 +131,10 @@ The logic used to generate scored or requirement for labels is given within comm
     }
     GROUP BY ?resource
   }
-  FILTER(?dist_count > 1)
+  FILTER(?dist_count &gt; 1)
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -164,7 +142,6 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>A - Accessible</p>
@@ -174,7 +151,7 @@ The logic used to generate scored or requirement for labels is given within comm
                     <td>
                         <p>A1</p>
                         <p><em>(Meta)data are retrievable by their identifier using a standardised communications
-                                protocol</em></p>
+                            protocol</em></p>
                         <table>
                             <tr>
                                 <td>
@@ -183,40 +160,33 @@ The logic used to generate scored or requirement for labels is given within comm
                                     <table>
                                         <tr>
                                             <td>F1 >= 2 AND Access Rights exist [3]</td>
-                                            <td>
-                                                <p>Query</p>
+                                            <td><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
                                             </td>
-                                            <td>
-                                                <p>Conditions</p>
+                                            <td><p>Conditions</p>
                                                 <ul>
                                                     <li>F1 >= 2</li>
                                                 </ul>
                                             </td>
                                         </tr>
-
                                         <tr>
                                             <td>Access Rights are open [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
-                                                <pre>ASK { #iri# dcterms:accessRights <https://linked.data.gov.au/def/data-access-rights/open> }</pre>
+                                            <td colspan="2"><p>Query</p>
+                                                <pre>ASK { #iri# dcterms:accessRights &lt;https://linked.data.gov.au/def/data-access-rights/open&gt; }</pre>
                                             </td>
-
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>
                                     <p>A1.2</p>
                                     <p><em>The protocol allows for an authentication and authorisation procedure, where
-                                            necessary</em></p>
+                                        necessary</em></p>
                                     <table>
                                         <tr>
                                             <td>F3 = 2 AND Access Rights exist [3]</td>
-                                            <td>
-                                                <p>Query</p>
+                                            <td><p>Query</p>
                                                 <pre>ASK {
     #iri# dcterms:accessRights ?accessRights ;
         dcat:distribution ?dist .
@@ -224,8 +194,7 @@ The logic used to generate scored or requirement for labels is given within comm
 }
 </pre>
                                             </td>
-                                            <td>
-                                                <p>Conditions</p>
+                                            <td><p>Conditions</p>
                                                 <ul>
                                                     <li>F3 = 2</li>
                                                 </ul>
@@ -237,7 +206,6 @@ The logic used to generate scored or requirement for labels is given within comm
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>A2</p>
@@ -245,16 +213,15 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Under the archive policy, the metadata record will be available even if the
-                                    data/resource is no longer available [3]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    data/resource is no longer available [3]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:wasInfluencedBy ?policy .
-    ?policy sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> .
+    ?policy sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/data-policy&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -262,7 +229,6 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>I - Interoperable</p>
@@ -272,29 +238,23 @@ The logic used to generate scored or requirement for labels is given within comm
                     <td>
                         <p>I1</p>
                         <p><em>(Meta)data use a formal, accessible, shared, and broadly applicable language for
-                                knowledge representation.</em></p>
+                            knowledge representation.</em></p>
                         <table>
                             <tr>
                                 <td>Metadata is structured using an open standard [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# ?p ?o }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Metadata is machine readable [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# ?p ?o }</pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>I2</p>
@@ -302,20 +262,16 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>F1 & F2 are scored fully [4]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>F1 has scored fully</li>
                                         <li>F2 has scored fully</li>
                                     </ul>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>Reference vocabularies have been used to describe the data [4]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:type ?indigeneity ;
         dcat:theme ?theme ;
@@ -324,25 +280,20 @@ The logic used to generate scored or requirement for labels is given within comm
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Vocabulary references use global identifiers [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:type|dcat:theme|dcterms:license|dcterms:accessRights ?vocab .
     FILTER isIRI(?vocab)
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>I3</p>
@@ -350,8 +301,7 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Metadata includes links to other metadata [4]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     {
         #iri# dcterms:license ?license .
@@ -367,20 +317,16 @@ The logic used to generate scored or requirement for labels is given within comm
     }
     UNION {
         #iri# prov:wasInfluencedBy ?idgf .
-        ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+        ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
             sdo:url ?idgfUrl .
     }
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Metadata is machine readable [1]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>F1 > 1</li>
                                     </ul>
@@ -392,12 +338,11 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>R - Reusable</p>
             <p><em>Metadata and data should be well-described so that they can be replicated and/or combined in
-                    different settings.</em></p>
+                different settings.</em></p>
             <table>
                 <tr>
                     <td>
@@ -413,34 +358,25 @@ The logic used to generate scored or requirement for labels is given within comm
                                     <table>
                                         <tr>
                                             <td>Metadata includes license [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:license ?license }</pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>Metadata includes rights statement [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:rights ?rights }</pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>Access rights exist [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
                                             </td>
-
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>
                                     <p>R1.2</p>
@@ -448,65 +384,50 @@ The logic used to generate scored or requirement for labels is given within comm
                                     <table>
                                         <tr>
                                             <td>Includes role custodian/author/creator [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK {
     VALUES ?role {
-        <https://linked.data.gov.au/def/data-roles/author>
-        <https://linked.data.gov.au/def/data-roles/creator>
-        <https://linked.data.gov.au/def/data-roles/custodian>
+        &lt;https://linked.data.gov.au/def/data-roles/author&gt;
+        &lt;https://linked.data.gov.au/def/data-roles/creator&gt;
+        &lt;https://linked.data.gov.au/def/data-roles/custodian&gt;
     }
     #iri# prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole ?role .
 }
 </pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>Created date included [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:created ?created }</pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>License exists [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:license ?license }</pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>Spatial exists [2]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK { #iri# dcterms:spatial ?spatial }</pre>
                                             </td>
-
                                         </tr>
-
                                         <tr>
                                             <td>Contact details exist [1]</td>
-                                            <td colspan="2">
-                                                <p>Query</p>
+                                            <td colspan="2"><p>Query</p>
                                                 <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> .
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/pointOfContact&gt; .
 }
 </pre>
                                             </td>
-
                                         </tr>
                                     </table>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>
                                     <p>R1.3</p>
@@ -514,20 +435,15 @@ The logic used to generate scored or requirement for labels is given within comm
                                     <table>
                                         <tr>
                                             <td>Metadata includes a link to the data source [2]</td>
-
-                                            <td colspan="2">
-                                                <p>Conditions</p>
+                                            <td colspan="2"><p>Conditions</p>
                                                 <ul>
                                                     <li>F3 = 2</li>
                                                 </ul>
                                             </td>
                                         </tr>
-
                                         <tr>
                                             <td>Metadata conforms to well known community standards [1]</td>
-
-                                            <td colspan="2">
-                                                <p>Conditions</p>
+                                            <td colspan="2"><p>Conditions</p>
                                                 <ul>
                                                     <li>A1 >= 6</li>
                                                 </ul>
@@ -543,13 +459,15 @@ The logic used to generate scored or requirement for labels is given within comm
         </td>
     </tr>
 </table>
-<p>CARE</p>
+
+### CARE
+
 <table>
     <tr>
         <td>
             <p>C - Collective Benefit</p>
             <p><em>Data ecosystems shall be designed and function in ways that enable Indigenous Peoples to derive
-                    benefit from the data.</em></p>
+                benefit from the data.</em></p>
             <table>
                 <tr>
                     <td>
@@ -558,34 +476,25 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Metadata is discoverable (persistently identified) [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# ?p ?o }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>The data has been assigned one or more Indigeneity terms [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:type ?indigeneity }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Data has Access Rights described [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>C2</p>
@@ -593,56 +502,41 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Metadata is discoverable via the internet (i.e. IRI resolves) [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
-                                </td>
-
                             </tr>
-
                             <tr>
                                 <td>Data title exists [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:title ?title }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Data description exists [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:description ?description }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons
                                     Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons” [1]
                                 </td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     VALUES ?indigeneity {
-        <https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>C3</p>
@@ -650,31 +544,27 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>License and Rights have been identified and Agent with role “Rights Holder” has been
-                                    identified [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    identified [2]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:license ?license ;
         dcterms:rights ?rights ;
         prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/rightsHolder> .
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/rightsHolder&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Data distribution information exists [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcat:distribution ?distribution .
     ?distribution dcat:accessURL ?url .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -682,12 +572,11 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>A - Authority to Control</p>
             <p><em>Indigenous Peoples' rights and interests in Indigenous data must be recognised and their authority to
-                    control such data be empowered.</em></p>
+                control such data be empowered.</em></p>
             <table>
                 <tr>
                     <td>
@@ -698,43 +587,38 @@ The logic used to generate scored or requirement for labels is given within comm
                                 <td>Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons
                                     Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons” [1]
                                 </td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     VALUES ?indigeneity {
-        <https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>License and Rights have been identified and Agent with role “Rights Holder” has been
-                                    identified [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    identified [2]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:license ?license ;
         dcterms:rights ?rights ;
         prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/rightsHolder> .
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/rightsHolder&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>A2</p>
@@ -742,39 +626,35 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>The URL link to, OR text description of, an Indigenous Data Governance Framework or
-                                    Indigenous Data Committee is identified in the metadata record [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    Indigenous Data Committee is identified in the metadata record [1]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:wasInfluencedBy ?idgf .
-    ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url|sdo:description ?o .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Agent which has indicated the Indigenous Data Governance Framework has Role =
-                                    Custodian [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    Custodian [1]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
-    ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> .
+    ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>A3</p>
@@ -782,29 +662,25 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Indigeneity = By Indigenous People [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
+    #iri# dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>URL link to an Indigenous Data Governance Framework or Indigenous Data Committee is
-                                    identified in the metadata record [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    identified in the metadata record [1]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:wasInfluencedBy ?idgf .
-    ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url ?url .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -812,12 +688,11 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>R - Responsibility</p>
             <p><em>Those working with Indigenous data have a responsibility to share how those data are used to support
-                    Indigenous Peoples' self-determination and collective benefit.</em></p>
+                Indigenous Peoples' self-determination and collective benefit.</em></p>
             <table>
                 <tr>
                     <td>
@@ -826,41 +701,35 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>Indigeneity = By Indigenous People [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
+    #iri# dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons
                                     Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons” [2]
                                 </td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     VALUES ?indigeneity {
-        <https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
-        <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/run-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
+        &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>R2</p>
@@ -869,25 +738,23 @@ The logic used to generate scored or requirement for labels is given within comm
                             <tr>
                                 <td>Custodian (Role) Agent has identified a resolvable URL link to, OR text description
                                     of, an Indigenous Data Governance Framework or Indigenous Data Committee in the
-                                    metadata record [2]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    metadata record [2]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
-    ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url|sdo:description ?o .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>R3</p>
@@ -895,50 +762,40 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>C3 has scored fully [2]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>C3 has scored fully</li>
                                     </ul>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>Custodian (Role) Agent has identified a resolvable URL link to, OR text description
                                     of, an Indigenous Data Governance Framework or Indigenous Data Committee in the
-                                    metadata record [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    metadata record [1]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
-    ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url ?url .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Spatial geometry has been identified [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcterms:spatial ?spatial }</pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>At least two themes have been selected [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK { #iri# dcat:theme ?theme }</pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -946,12 +803,11 @@ The logic used to generate scored or requirement for labels is given within comm
             </table>
         </td>
     </tr>
-
     <tr>
         <td>
             <p>E - Ethics</p>
             <p><em>Indigenous Peoples' rights and wellbeing should be the primary concern at all stages of the data life
-                    cycle and across the data ecosystem.</em></p>
+                cycle and across the data ecosystem.</em></p>
             <table>
                 <tr>
                     <td>
@@ -960,20 +816,15 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>C3 has scored fully [2]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>C3 has scored fully</li>
                                     </ul>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>A1 has scored fully [1]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>A1 has scored fully</li>
                                     </ul>
@@ -982,7 +833,6 @@ The logic used to generate scored or requirement for labels is given within comm
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>E2</p>
@@ -990,34 +840,29 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>A3 has scored fully [2]</td>
-
-                                <td colspan="2">
-                                    <p>Conditions</p>
+                                <td colspan="2"><p>Conditions</p>
                                     <ul>
                                         <li>A3 has scored fully</li>
                                     </ul>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>Custodian (Role) Agent’s information in database has ONLY Indigeneity = “Indigenous
-                                    Persons Organisation” [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                    Persons Organisation” [1]
+                                </td>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
-    ?agent dcterms:type <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> .
+    ?agent dcterms:type &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt; .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
                 </tr>
-
                 <tr>
                     <td>
                         <p>E3</p>
@@ -1025,30 +870,25 @@ The logic used to generate scored or requirement for labels is given within comm
                         <table>
                             <tr>
                                 <td>The date that the data was created and modified are identified [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# dcterms:created ?created ;
         dcterms:modified ?modified .
 }
 </pre>
                                 </td>
-
                             </tr>
-
                             <tr>
                                 <td>Name AND point of contact (Email OR Phone) is identified [1]</td>
-                                <td colspan="2">
-                                    <p>Query</p>
+                                <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     #iri# prov:qualifiedAttribution ?agentRole .
-    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+    ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/pointOfContact&gt; ;
         prov:agent ?agent .
     ?agent sdo:name ?name .
 }
 </pre>
                                 </td>
-
                             </tr>
                         </table>
                     </td>
@@ -1057,50 +897,29 @@ The logic used to generate scored or requirement for labels is given within comm
         </td>
     </tr>
 </table>
-++++
 
-== Use
+## Licensing & Rights
 
-These Python scripts calculate their various scores from input metadata. In addition to looking for metadata elements, they also look up additional details for values they see online, in particular they attempt to ascertain the indigeneity of `Agents` associate with a `Dataset` by looking up the `Agent` online, in the http://idn.kurrawong.net[IDN Agent Catalogue] which contains indigeneity notes.
-
-To use the scripts via _calc.py_, you need to run them as a Python command line program:
-
-`~$ python calc.py ...`
-
-You need to indicate the calculation being performed - "fair", "care" or "lc" and to indicate the source of the metadata to be assessed - a file or online location. You can optionally tell the script how to return results, rather than just printing them to screen. the formal command line arguments are:
-
-== Contributing
-
-The developers of this software - the Indigenous Data Network - recognise that it will be of value beyond their scope, i.e. for non-indigenous, non-Australia data, and are very happy to collaborate with anyone to improve the code. Improvements for others will surely improve the IDN's own assessments of indigenous Australian data after all.
-
-To collaborate, please formulate https://docs.github.com/en/pull-requests[_Pull Requests_] against this codebase which the IDN team will review. If you are uncertain about the scope/direction etc. of a potential PR, please just be in touch and ask up! You could raise an Issue in this codebase's https://github.com/idn-au/scores-calculator/issues[Issue Tracker] to test the waters...
-
-== Licensing & Rights
-
-The creators and maintainers of this software wish for it to be available for use as widely as possible. The software is thus licensed using the very permissive https://opensource.org/licenses/BSD-3-Clause[BSD 3-Clause] software license, a copy of the deed of which is in the file LICENSE.
+The creators and maintainers of this software wish for it to be available for use as widely as possible. The software is thus licensed using the very permissive [BSD 3-Clause](https://opensource.org/licenses/BSD-3-Clause) software license, a copy of the deed of which is in the file LICENSE.
 
 This software is copyright as follows:
 
-(c) Indigenous Data Network, 2023
+(c) Indigenous Data Network, 2025
 
-== Contact
+## Contacts
 
 For technical enquiries:
 
-**Jamie Feiss** +
-*Data Infrastructure Developer* +
-Indigenous Data Network +
-University of Melbourne +
+**Jamie Feiss**  
+*Data Infrastructure Developer*  
+Indigenous Data Network  
+University of Melbourne  
 jamie.feiss@unimelb.edu.au
 
 For policy:
 
-**Levi Murray** +
-*Strategic Data Manager* +
-Indigenous Data Network +
-University of Melbourne +
+**Levi Murray**  
+*Strategic Data Manager*  
+Indigenous Data Network  
+University of Melbourne  
 levi.murray@unimelb.edu.au
-
-_Owner Organisation_ +
-*Indigenous Data Network* +
-https://idnau.org
