@@ -8,10 +8,10 @@ f:
       requirements:
         - value: 1
           description: Metadata has an identifier
-          query: "ASK { #iri# ?p ?o }" # if IRI exists then it has an identifier
+          query: "ASK { ?iri ?p ?o }" # if IRI exists then it has an identifier
         - value: 1
           description: Metadata identifier is a URL
-          query: "ASK { #iri# ?p ?o }" # if IRI exists then ID is a valid URL
+          query: "ASK { ?iri ?p ?o }" # if IRI exists then ID is a valid URL
         - value: 3
           description: Metadata identifier is globally unique, citable and persistent
           resolvable: self
@@ -23,23 +23,23 @@ f:
           description: Resource title and description is included
           query: |
             ASK {
-                #iri# dcterms:title ?title ;
-                    dcterms:description ?desc .
+                ?iri sdo:name ?title ;
+                    sdo:description ?desc .
             }
         - value: 2
           description: Additional descriptive properties are present
-          query: "ASK { #iri# dcterms:type ?indigeneity }"
+          query: "ASK { ?iri sdo:keywords ?indigeneity }"
         - value: 3
           description: All recommended descriptive properties are present
           query: |
             ASK {
-                #iri# dcterms:title ?title ;
-                    dcterms:description ?desc ;
-                    dcterms:type ?indigeneity ;
-                    dcat:theme ?theme ;
+                ?iri sdo:name ?title ;
+                    sdo:description ?desc ;
+                    sdo:keywords ?indigeneity ;
+                    sdo:keywords ?theme ;
                     prov:qualifiedAttribution ?agentRole .
-                ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
-                    prov:agent ?agent .
+                ?agentRole prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+                    sdo:agent ?agent .
                 ?agent sdo:email|sdo:telephone ?contact .
             }
     f3:
@@ -50,15 +50,15 @@ f:
           description: Distribution information is included as a resolvable URL
           query: |
             ASK {
-                #iri# dcat:distribution ?dist .
-                ?dist dcat:accessURL ?url .
+                ?iri sdo:distribution ?dist .
+                ?dist sdo:contentUrl ?url .
             }
           resolvable:
             query: |
               SELECT ?url
               WHERE {
-                #iri# dcat:distribution ?dist .
-                ?dist dcat:accessURL ?url .
+                ?iri sdo:distribution ?dist .
+                ?dist sdo:contentUrl ?url .
               }
             variable: url
     f4:
@@ -67,7 +67,7 @@ f:
       requirements:
         - value: 3
           description: Data is described in a repository
-          query: "ASK { #iri# dcat:distribution ?dist }"
+          query: "ASK { ?iri sdo:distribution ?dist }"
         - value: 1
           description: Data is discoverable through several registries
           query: |
@@ -75,8 +75,8 @@ f:
               {
                 SELECT ?resource (count(?dist) as ?dist_count)
                 WHERE {
-                  BIND(#iri# as ?resource)
-                  ?resource dcat:distribution ?dist . 
+                  BIND(?iri as ?resource)
+                  ?resource sdo:distribution ?dist . 
                 }
                 GROUP BY ?resource
               }
@@ -100,10 +100,10 @@ a:
                 - title: F1 >= 2
                   key: f1
                   value: 2
-              query: "ASK { #iri# dcterms:accessRights ?accessRights }"
+              query: "ASK { ?iri sdo:usageInfo ?accessRights }"
             - value: 1
               description: Access Rights are open
-              query: "ASK { #iri# dcterms:accessRights
+              query: "ASK { ?iri sdo:usageInfo
                 <https://linked.data.gov.au/def/data-access-rights/open> }"
         a1.2:
           title: A1.2
@@ -117,9 +117,9 @@ a:
                   value: 2
               query: |
                 ASK {
-                    #iri# dcterms:accessRights ?accessRights ;
-                        dcat:distribution ?dist .
-                    ?dist dcat:accessURL ?url .
+                    ?iri sdo:usageInfo ?accessRights ;
+                        sdo:distribution ?dist .
+                    ?dist sdo:contentUrl ?url .
                 }
     a2:
       title: A2
@@ -129,7 +129,7 @@ a:
           description: Under the archive policy, the metadata record will be available even if the data/resource is no longer available
           query: |
             ASK {
-                #iri# prov:wasInfluencedBy ?policy .
+                ?iri prov:wasInfluencedBy ?policy .
                 ?policy sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> .
             }
 i:
@@ -142,10 +142,10 @@ i:
       requirements:
         - value: 1
           description: Metadata is structured using an open standard
-          query: "ASK { #iri# ?p ?o }"
+          query: "ASK { ?iri ?p ?o }"
         - value: 2
           description: Metadata is machine readable
-          query: "ASK { #iri# ?p ?o }"
+          query: "ASK { ?iri ?p ?o }"
     i2:
       title: I2
       description: (Meta)data use vocabularies that follow FAIR principles
@@ -163,16 +163,16 @@ i:
           description: Reference vocabularies have been used to describe the data
           query: |
             ASK {
-                #iri# dcterms:type ?indigeneity ;
-                    dcat:theme ?theme ;
-                    dcterms:license ?license ;
-                    dcterms:accessRights ?accessRights .
+                ?iri sdo:keywords ?indigeneity ;
+                    sdo:keywords ?theme ;
+                    sdo:license ?license ;
+                    sdo:usageInfo ?accessRights .
             }
         - value: 1
           description: Vocabulary references use global identifiers
           query: |
             ASK {
-                #iri# dcterms:type|dcat:theme|dcterms:license|dcterms:accessRights ?vocab .
+                ?iri sdo:keywords|sdo:license|sdo:usageInfo ?vocab .
                 FILTER isIRI(?vocab)
             }
     i3:
@@ -184,19 +184,19 @@ i:
           query: |
             ASK {
                 {
-                    #iri# dcterms:license ?license .
+                    ?iri sdo:license ?license .
                     FILTER isIRI(?license)
                 }
                 UNION {
-                    #iri# dcterms:spatial ?spatial .
+                    ?iri sdo:spatialCoverage ?spatial .
                     FILTER isIRI(?spatial)
                 }
                 UNION {
-                    #iri# dcat:distribution ?distribution .
-                    ?distribution dcat:accessURL ?accessURL .
+                    ?iri sdo:distribution ?distribution .
+                    ?distribution sdo:contentUrl ?accessURL .
                 }
                 UNION {
-                    #iri# prov:wasInfluencedBy ?idgf .
+                    ?iri prov:wasInfluencedBy ?idgf .
                     ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
                         sdo:url ?idgfUrl .
                 }
@@ -221,13 +221,13 @@ r:
           requirements:
             - value: 1
               description: Metadata includes license
-              query: "ASK { #iri# dcterms:license ?license }"
+              query: "ASK { ?iri sdo:license ?license }"
             - value: 1
               description: Metadata includes rights statement
-              query: "ASK { #iri# dcterms:rights ?rights }"
+              query: "ASK { ?iri sdo:copyrightNotice ?rights }"
             - value: 1
               description: Access rights exist
-              query: "ASK { #iri# dcterms:accessRights ?accessRights }"
+              query: "ASK { ?iri sdo:usageInfo ?accessRights }"
         r1.2:
           title: R1.2
           description: (Meta)data are associated with detailed provenance
@@ -241,24 +241,24 @@ r:
                         <https://linked.data.gov.au/def/data-roles/creator>
                         <https://linked.data.gov.au/def/data-roles/custodian>
                     }
-                    #iri# prov:qualifiedAttribution ?agentRole .
-                    ?agentRole dcat:hadRole ?role .
+                    ?iri prov:qualifiedAttribution ?agentRole .
+                    ?agentRole prov:hadRole ?role .
                 }
             - value: 1
               description: Created date included
-              query: "ASK { #iri# dcterms:created ?created }"
+              query: "ASK { ?iri sdo:dateCreated ?created }"
             - value: 1
               description: License exists
-              query: "ASK { #iri# dcterms:license ?license }"
+              query: "ASK { ?iri sdo:license ?license }"
             - value: 2
               description: Spatial exists
-              query: "ASK { #iri# dcterms:spatial ?spatial }"
+              query: "ASK { ?iri sdo:spatialCoverage ?spatial }"
             - value: 1
               description: Contact details exist
               query: |
                 ASK {
-                    #iri# prov:qualifiedAttribution ?agentRole .
-                    ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> .
+                    ?iri prov:qualifiedAttribution ?agentRole .
+                    ?agentRole prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> .
                 }
         r1.3:
           title: R1.3

@@ -11,9 +11,9 @@ import type {
     SPARQLResultsJSON
 } from "./types";
 
-const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
+// const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
 // const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@0.3.1/definitions`;
-// const DEFINITION_URL_PREFIX = "/definitions";
+const DEFINITION_URL_PREFIX = "/public";
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -180,14 +180,14 @@ export class ScoreCalculator {
         let resolved = true;
         let conditionsResult = true;
         if (r.query) {
-            const query = PREFIXES + "\n" + r.query.replace("#iri#", `<${iri}>`);
+            const query = PREFIXES + "\n" + r.query.replace("?iri", `<${iri}>`);
             queryResult = askQueryFn(query);
         }
         if (r.resolvable !== undefined) {
             if (r.resolvable === "self") {
                 resolved = await this.checkResolvable(iri);
             } else {
-                const query = PREFIXES + "\n" + r.resolvable.query.replace("#iri#", `<${iri}>`);
+                const query = PREFIXES + "\n" + r.resolvable.query.replace("?iri", `<${iri}>`);
                 const sparqlResults = selectQueryFn(query).results!.bindings;
                 // @ts-ignore
                 resolved = (await Promise.all([...sparqlResults.map(x => this.checkResolvable(x[r.resolvable!.variable!].value))])).every(x => x);
