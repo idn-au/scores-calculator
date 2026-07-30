@@ -35,13 +35,13 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Metadata has an identifier [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
+                                    <pre>ASK { ?iri ?p ?o }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Metadata identifier is a URL [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
+                                    <pre>ASK { ?iri ?p ?o }</pre>
                                 </td>
                             </tr>
                             <tr>
@@ -59,7 +59,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Resource title and description is included [2]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:title ?title ;
+    ?iri dcterms:title ?title ;
         dcterms:description ?desc .
 }
 </pre>
@@ -68,14 +68,14 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Additional descriptive properties are present [2]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:type ?indigeneity }</pre>
+                                    <pre>ASK { ?iri dcterms:type ?indigeneity }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>All recommended descriptive properties are present [3]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:title ?title ;
+    ?iri dcterms:title ?title ;
         dcterms:description ?desc ;
         dcterms:type ?indigeneity ;
         dcat:theme ?theme ;
@@ -99,7 +99,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Distribution information is included as a resolvable URL [2]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcat:distribution ?dist .
+    ?iri dcat:distribution ?dist .
     ?dist dcat:accessURL ?url .
 }
 </pre>
@@ -116,7 +116,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Data is described in a repository [3]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcat:distribution ?dist }</pre>
+                                    <pre>ASK { ?iri dcat:distribution ?dist }</pre>
                                 </td>
                             </tr>
                             <tr>
@@ -126,7 +126,7 @@ The tables below describe the scoring rules described in the YAML files in the [
   {
     SELECT ?resource (count(?dist) as ?dist_count)
     WHERE {
-      BIND(#iri# as ?resource)
+      BIND(?iri as ?resource)
       ?resource dcat:distribution ?dist . 
     }
     GROUP BY ?resource
@@ -161,7 +161,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                         <tr>
                                             <td>F1 >= 2 AND Access Rights exist [3]</td>
                                             <td><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
+                                                <pre>ASK { ?iri dcterms:accessRights ?accessRights }</pre>
                                             </td>
                                             <td><p>Conditions</p>
                                                 <ul>
@@ -172,7 +172,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                         <tr>
                                             <td>Access Rights are open [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:accessRights &lt;https://linked.data.gov.au/def/data-access-rights/open&gt; }</pre>
+                                                <pre>ASK { ?iri dcterms:accessRights &lt;https://linked.data.gov.au/def/data-access-rights/open&gt; }</pre>
                                             </td>
                                         </tr>
                                     </table>
@@ -188,7 +188,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                             <td>F3 = 2 AND Access Rights exist [3]</td>
                                             <td><p>Query</p>
                                                 <pre>ASK {
-    #iri# dcterms:accessRights ?accessRights ;
+    ?iri dcterms:accessRights ?accessRights ;
         dcat:distribution ?dist .
     ?dist dcat:accessURL ?url .
 }
@@ -217,7 +217,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:wasInfluencedBy ?policy .
+    ?iri prov:wasInfluencedBy ?policy .
     ?policy sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/data-policy&gt; .
 }
 </pre>
@@ -243,13 +243,13 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Metadata is structured using an open standard [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
+                                    <pre>ASK { ?iri ?p ?o }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Metadata is machine readable [2]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
+                                    <pre>ASK { ?iri ?p ?o }</pre>
                                 </td>
                             </tr>
                         </table>
@@ -273,7 +273,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Reference vocabularies have been used to describe the data [4]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type ?indigeneity ;
+    ?iri dcterms:type ?indigeneity ;
         dcat:theme ?theme ;
         dcterms:license ?license ;
         dcterms:accessRights ?accessRights .
@@ -285,7 +285,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Vocabulary references use global identifiers [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type|dcat:theme|dcterms:license|dcterms:accessRights ?vocab .
+    ?iri dcterms:type|dcat:theme|dcterms:license|dcterms:accessRights ?vocab .
     FILTER isIRI(?vocab)
 }
 </pre>
@@ -304,19 +304,19 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
     {
-        #iri# dcterms:license ?license .
+        ?iri dcterms:license ?license .
         FILTER isIRI(?license)
     }
     UNION {
-        #iri# dcterms:spatial ?spatial .
+        ?iri dcterms:spatial ?spatial .
         FILTER isIRI(?spatial)
     }
     UNION {
-        #iri# dcat:distribution ?distribution .
+        ?iri dcat:distribution ?distribution .
         ?distribution dcat:accessURL ?accessURL .
     }
     UNION {
-        #iri# prov:wasInfluencedBy ?idgf .
+        ?iri prov:wasInfluencedBy ?idgf .
         ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
             sdo:url ?idgfUrl .
     }
@@ -359,19 +359,19 @@ The tables below describe the scoring rules described in the YAML files in the [
                                         <tr>
                                             <td>Metadata includes license [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:license ?license }</pre>
+                                                <pre>ASK { ?iri dcterms:license ?license }</pre>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Metadata includes rights statement [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:rights ?rights }</pre>
+                                                <pre>ASK { ?iri dcterms:rights ?rights }</pre>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Access rights exist [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
+                                                <pre>ASK { ?iri dcterms:accessRights ?accessRights }</pre>
                                             </td>
                                         </tr>
                                     </table>
@@ -391,7 +391,7 @@ The tables below describe the scoring rules described in the YAML files in the [
         &lt;https://linked.data.gov.au/def/data-roles/creator&gt;
         &lt;https://linked.data.gov.au/def/data-roles/custodian&gt;
     }
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole ?role .
 }
 </pre>
@@ -400,26 +400,26 @@ The tables below describe the scoring rules described in the YAML files in the [
                                         <tr>
                                             <td>Created date included [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:created ?created }</pre>
+                                                <pre>ASK { ?iri dcterms:created ?created }</pre>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>License exists [1]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:license ?license }</pre>
+                                                <pre>ASK { ?iri dcterms:license ?license }</pre>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Spatial exists [2]</td>
                                             <td colspan="2"><p>Query</p>
-                                                <pre>ASK { #iri# dcterms:spatial ?spatial }</pre>
+                                                <pre>ASK { ?iri dcterms:spatial ?spatial }</pre>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>Contact details exist [1]</td>
                                             <td colspan="2"><p>Query</p>
                                                 <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/pointOfContact&gt; .
 }
 </pre>
@@ -477,19 +477,19 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Metadata is discoverable (persistently identified) [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# ?p ?o }</pre>
+                                    <pre>ASK { ?iri ?p ?o }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>The data has been assigned one or more Indigeneity terms [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:type ?indigeneity }</pre>
+                                    <pre>ASK { ?iri dcterms:type ?indigeneity }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Data has Access Rights described [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:accessRights ?accessRights }</pre>
+                                    <pre>ASK { ?iri dcterms:accessRights ?accessRights }</pre>
                                 </td>
                             </tr>
                         </table>
@@ -506,13 +506,13 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Data title exists [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:title ?title }</pre>
+                                    <pre>ASK { ?iri dcterms:title ?title }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>Data description exists [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:description ?description }</pre>
+                                    <pre>ASK { ?iri dcterms:description ?description }</pre>
                                 </td>
                             </tr>
                             <tr>
@@ -526,7 +526,7 @@ The tables below describe the scoring rules described in the YAML files in the [
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
@@ -548,7 +548,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:license ?license ;
+    ?iri dcterms:license ?license ;
         dcterms:rights ?rights ;
         prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/rightsHolder&gt; .
@@ -560,7 +560,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Data distribution information exists [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcat:distribution ?distribution .
+    ?iri dcat:distribution ?distribution .
     ?distribution dcat:accessURL ?url .
 }
 </pre>
@@ -594,7 +594,7 @@ The tables below describe the scoring rules described in the YAML files in the [
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
@@ -608,7 +608,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:license ?license ;
+    ?iri dcterms:license ?license ;
         dcterms:rights ?rights ;
         prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/rightsHolder&gt; .
@@ -630,7 +630,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:wasInfluencedBy ?idgf .
+    ?iri prov:wasInfluencedBy ?idgf .
     ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url|sdo:description ?o .
 }
@@ -643,7 +643,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
@@ -664,7 +664,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Indigeneity = By Indigenous People [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
+    ?iri dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
 }
 </pre>
                                 </td>
@@ -675,7 +675,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:wasInfluencedBy ?idgf .
+    ?iri prov:wasInfluencedBy ?idgf .
     ?idgf sdo:additionalType &lt;https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance&gt; ;
         sdo:url ?url .
 }
@@ -703,7 +703,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Indigeneity = By Indigenous People [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
+    ?iri dcterms:type &lt;https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people&gt; .
 }
 </pre>
                                 </td>
@@ -719,7 +719,7 @@ The tables below describe the scoring rules described in the YAML files in the [
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons&gt;
         &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt;
     }
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type ?indigeneity .
@@ -742,7 +742,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
@@ -775,7 +775,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent prov:contributed ?idgf .
@@ -788,13 +788,13 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>Spatial geometry has been identified [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcterms:spatial ?spatial }</pre>
+                                    <pre>ASK { ?iri dcterms:spatial ?spatial }</pre>
                                 </td>
                             </tr>
                             <tr>
                                 <td>At least two themes have been selected [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { #iri# dcat:theme ?theme }</pre>
+                                    <pre>ASK { ?iri dcat:theme ?theme }</pre>
                                 </td>
                             </tr>
                         </table>
@@ -852,7 +852,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 </td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/custodian&gt; ;
         prov:agent ?agent .
     ?agent dcterms:type &lt;https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation&gt; .
@@ -872,7 +872,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>The date that the data was created and modified are identified [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# dcterms:created ?created ;
+    ?iri dcterms:created ?created ;
         dcterms:modified ?modified .
 }
 </pre>
@@ -882,7 +882,7 @@ The tables below describe the scoring rules described in the YAML files in the [
                                 <td>Name AND point of contact (Email OR Phone) is identified [1]</td>
                                 <td colspan="2"><p>Query</p>
                                     <pre>ASK {
-    #iri# prov:qualifiedAttribution ?agentRole .
+    ?iri prov:qualifiedAttribution ?agentRole .
     ?agentRole dcat:hadRole &lt;https://linked.data.gov.au/def/data-roles/pointOfContact&gt; ;
         prov:agent ?agent .
     ?agent sdo:name ?name .

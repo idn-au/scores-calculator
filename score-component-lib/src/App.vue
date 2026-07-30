@@ -94,7 +94,7 @@ function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false)
 }
 
 onMounted(async () => {
-	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.6/web_bg.wasm"});
+	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
 	const store = new oxigraph.Store();
 	store.load(example, { format: "text/turtle" });
 

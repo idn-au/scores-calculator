@@ -8,13 +8,13 @@ c:
       requirements:
         - value: 1
           description: Metadata is discoverable (persistently identified)
-          query: "ASK { #iri# ?p ?o }"
+          query: "ASK { ?iri ?p ?o }"
         - value: 1
           description: The data has been assigned one or more Indigeneity terms
-          query: "ASK { #iri# dcterms:type ?indigeneity }"
+          query: "ASK { ?iri dcterms:type ?indigeneity }"
         - value: 1
           description: Data has Access Rights described
-          query: "ASK { #iri# dcterms:accessRights ?accessRights }"
+          query: "ASK { ?iri dcterms:accessRights ?accessRights }"
     c2:
       title: C2
       description: For improved government and citizen engagement
@@ -29,10 +29,10 @@ c:
           resolvable: self
         - value: 1
           description: Data title exists
-          query: "ASK { #iri# dcterms:title ?title }"
+          query: "ASK { ?iri dcterms:title ?title }"
         - value: 1
           description: Data description exists
-          query: "ASK { #iri# dcterms:description ?description }"
+          query: "ASK { ?iri dcterms:description ?description }"
         - value: 1
           description: Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons”
           query: |
@@ -42,7 +42,7 @@ c:
                     <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
                     <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
                 }
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent dcterms:type ?indigeneity .
@@ -60,7 +60,7 @@ c:
           description: License and Rights have been identified and Agent with role “Rights Holder” has been identified
           query: |
             ASK {
-                #iri# dcterms:license ?license ;
+                ?iri dcterms:license ?license ;
                     dcterms:rights ?rights ;
                     prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/rightsHolder> .
@@ -69,7 +69,7 @@ c:
           description: Data distribution information exists
           query: |
             ASK {
-                #iri# dcat:distribution ?distribution .
+                ?iri dcat:distribution ?distribution .
                 ?distribution dcat:accessURL ?url .
             }
 a:
@@ -89,7 +89,7 @@ a:
                     <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
                     <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
                 }
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent dcterms:type ?indigeneity .
@@ -98,7 +98,7 @@ a:
           description: License and Rights have been identified and Agent with role “Rights Holder” has been identified
           query: |
             ASK {
-                #iri# dcterms:license ?license ;
+                ?iri dcterms:license ?license ;
                     dcterms:rights ?rights ;
                     prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/rightsHolder> .
@@ -116,7 +116,7 @@ a:
           description: The URL link to, OR text description of, an Indigenous Data Governance Framework or Indigenous Data Committee is identified in the metadata record
           query: |
             ASK {
-                #iri# prov:wasInfluencedBy ?idgf .
+                ?iri prov:wasInfluencedBy ?idgf .
                 ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
                     sdo:url|sdo:description ?o .
             }
@@ -124,7 +124,7 @@ a:
           description: Agent which has indicated the Indigenous Data Governance Framework has Role = Custodian
           query: |
             ASK {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent prov:contributed ?idgf .
@@ -143,13 +143,13 @@ a:
           description: Indigeneity = By Indigenous People
           query: |
             ASK {
-                #iri# dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
+                ?iri dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
             }
         - value: 1
           description: URL link to an Indigenous Data Governance Framework or Indigenous Data Committee is identified in the metadata record
           query: |
             ASK {
-                #iri# prov:wasInfluencedBy ?idgf .
+                ?iri prov:wasInfluencedBy ?idgf .
                 ?idgf sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
                     sdo:url ?url .
             }
@@ -165,7 +165,7 @@ r:
           description: Indigeneity = By Indigenous People
           query: |
             ASK {
-                #iri# dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
+                ?iri dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
             }
         - value: 2
           description: Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons”
@@ -176,7 +176,7 @@ r:
                     <https://data.idnau.org/pid/vocab/org-indigeneity/owned-by-indigenous-persons>
                     <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation>
                 }
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent dcterms:type ?indigeneity .
@@ -194,7 +194,7 @@ r:
           description: Custodian (Role) Agent has identified a resolvable URL link to, OR text description of, an Indigenous Data Governance Framework or Indigenous Data Committee in the metadata record
           query: |
             ASK {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent prov:contributed ?idgf .
@@ -205,7 +205,7 @@ r:
             query: |
               SELECT ?url
               WHERE {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent prov:contributed ?idgf .
@@ -232,7 +232,7 @@ r:
           description: Custodian (Role) Agent has identified a resolvable URL link to, OR text description of, an Indigenous Data Governance Framework or Indigenous Data Committee in the metadata record
           query: |
             ASK {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent prov:contributed ?idgf .
@@ -243,7 +243,7 @@ r:
             query: |
               SELECT ?url
               WHERE {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent prov:contributed ?idgf .
@@ -253,10 +253,10 @@ r:
             variable: url
         - value: 1
           description: Spatial geometry has been identified
-          query: "ASK { #iri# dcterms:spatial ?spatial }"
+          query: "ASK { ?iri dcterms:spatial ?spatial }"
         - value: 1
           description: At least two themes have been selected
-          query: "ASK { #iri# dcat:theme ?theme }"
+          query: "ASK { ?iri dcat:theme ?theme }"
 e:
   title: Ethics
   description: Indigenous Peoples' rights and wellbeing should be the primary concern at all stages of the data life cycle and across the data ecosystem.
@@ -296,7 +296,7 @@ e:
           description: Custodian (Role) Agent’s information in database has ONLY Indigeneity = “Indigenous Persons Organisation”
           query: |
             ASK {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
                     prov:agent ?agent .
                 ?agent dcterms:type <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> .
@@ -317,14 +317,14 @@ e:
           description: The date that the data was created and modified are identified
           query: |
             ASK {
-                #iri# dcterms:created ?created ;
+                ?iri dcterms:created ?created ;
                     dcterms:modified ?modified .
             }
         - value: 1
           description: Name AND point of contact (Email OR Phone) is identified
           query: |
             ASK {
-                #iri# prov:qualifiedAttribution ?agentRole .
+                ?iri prov:qualifiedAttribution ?agentRole .
                 ?agentRole dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
                     prov:agent ?agent .
                 ?agent sdo:name ?name .
