@@ -3,7 +3,8 @@ import { ref, onMounted } from "vue";
 import init, * as oxigraph from "oxigraph/web";
 import {ScoreCalculator, type SPARQLResultsJSON, TopScoreValueObj} from "@idn-au/scores-calculator-js";
 import Scores from "./components/Scores.vue";
-import CircleProgress from "@/components/CircleProgress.vue";
+import CircleProgress from "./components/CircleProgress.vue";
+import {Button} from "./components/ui/button";
 
 const example = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX dcterms: <http://purl.org/dc/terms/>
@@ -110,11 +111,13 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div :class="colorMode">
+	<div class="p-2">
 		<h1>Scores Vue Component Library</h1>
-		<button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">colour mode</button>
-		<div class="p-3 bg-background text-foreground">
-			<Scores title="FAIR" :score="fair" />
+		<Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
+			toggle colour mode
+		</Button>
+		<div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
+			<Scores title="FAIR" :score="fair" compact />
 			<Scores title="CARE" :score="care" />
 		</div>
 	</div>
