@@ -35,8 +35,7 @@ f:
             ASK {
                 ?iri sdo:name ?title ;
                     sdo:description ?desc ;
-                    sdo:keywords ?indigeneity ;
-                    sdo:keywords ?theme ;
+                    sdo:keywords ?keywords ;
                     prov:qualifiedAttribution ?agentRole .
                 ?agentRole prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
                     sdo:agent ?agent .
@@ -163,8 +162,7 @@ i:
           description: Reference vocabularies have been used to describe the data
           query: |
             ASK {
-                ?iri sdo:keywords ?indigeneity ;
-                    sdo:keywords ?theme ;
+                ?iri sdo:keywords ?keywords ;
                     sdo:license ?license ;
                     sdo:usageInfo ?accessRights .
             }

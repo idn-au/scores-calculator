@@ -1,7 +1,7 @@
 {
     "name": "@idn-au/score-component-lib",
-    "version": "0.5.0",
     "type": "module",
+    "version": "0.5.0",
     "repository": {
         "type": "git",
         "url": "https://github.com/idn-au/scores-calculator.git",
@@ -12,11 +12,6 @@
         "vue",
         "vuejs"
     ],
-    "files": [
-        "dist"
-    ],
-    "main": "./dist/score-component-lib.umd.cjs",
-    "module": "./dist/score-component-lib.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -28,7 +23,12 @@
             "require": "./dist/score-component-lib.css"
         }
     },
+    "main": "./dist/score-component-lib.umd.cjs",
+    "module": "./dist/score-component-lib.js",
     "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
     "scripts": {
         "dev": "vite",
         "build": "vue-tsc && vite build",

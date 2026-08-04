@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import type { SPARQLResultsJSON, TopScoreValueObj } from "@idn-au/scores-calculator-js";
+import { ScoreCalculator } from "@idn-au/scores-calculator-js";
 import init, * as oxigraph from "oxigraph/web";
-import {ScoreCalculator, type SPARQLResultsJSON, TopScoreValueObj} from "@idn-au/scores-calculator-js";
+import { onMounted, ref } from "vue";
 import Scores from "./components/Scores.vue";
-import CircleProgress from "./components/CircleProgress.vue";
-import {Button} from "./components/ui/button";
+import { Button } from "./components/ui/button";
 
 const example = `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -80,43 +80,43 @@ const care = ref({} as TopScoreValueObj);
 const colorMode = ref("light");
 
 function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false): SPARQLResultsJSON | boolean {
-	const options = {use_default_graph_as_union: true};
-	if (!ask) {
-		options.results_format = "application/sparql-results+json"
-	}
-	let result = store.query(query, options);
-	if (!ask) {
-		result = JSON.parse(result as string) as SPARQLResultsJSON;
-	}
-	return result;
+    const options = { use_default_graph_as_union: true };
+    if (!ask) {
+        options.results_format = "application/sparql-results+json";
+    }
+    let result = store.query(query, options);
+    if (!ask) {
+        result = JSON.parse(result as string) as SPARQLResultsJSON;
+    }
+    return result;
 }
 
 onMounted(async () => {
-	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
-	const store = new oxigraph.Store();
-	store.load(example, { format: "text/turtle" });
+    await init({ module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm" });
+    const store = new oxigraph.Store();
+    store.load(example, { format: "text/turtle" });
 
-	scoring = await ScoreCalculator.init(["fair", "care"]);
+    scoring = await ScoreCalculator.init(["fair", "care"]);
 
-	const p = await Promise.all([
-		scoring.score("https://example.com/example1", "fair", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query)),
-		scoring.score("https://example.com/example1", "care", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query))
-	]);
+    const p = await Promise.all([
+        scoring.score("https://example.com/example1", "fair", "json", query => sparqlQuery(store, query, true), query => sparqlQuery(store, query)),
+        scoring.score("https://example.com/example1", "care", "json", query => sparqlQuery(store, query, true), query => sparqlQuery(store, query)),
+    ]);
 
-	fair.value = p[0] as TopScoreValueObj;
-	care.value = p[1] as TopScoreValueObj;
+    fair.value = p[0] as TopScoreValueObj;
+    care.value = p[1] as TopScoreValueObj;
 });
 </script>
 
 <template>
-	<div class="p-2">
-		<h1>Scores Vue Component Library</h1>
-		<Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
-			toggle colour mode
-		</Button>
-		<div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
-			<Scores title="FAIR" :score="fair" compact />
-			<Scores title="CARE" :score="care" />
-		</div>
-	</div>
+    <div class="p-2">
+        <h1>Scores Vue Component Library</h1>
+        <Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
+            toggle colour mode
+        </Button>
+        <div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
+            <Scores title="FAIR" :score="fair" compact />
+            <Scores title="CARE" :score="care" />
+        </div>
+    </div>
 </template>

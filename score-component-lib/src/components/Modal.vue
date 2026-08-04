@@ -1,12 +1,12 @@
 <script lang="ts" setup>
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-
-const model = defineModel<boolean>();
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 
 const emit = defineEmits<{
-	open: [];
-	close: [];
+    open: [];
+    close: [];
 }>();
+
+const model = defineModel<boolean>();
 </script>
 
 <template>

@@ -1,19 +1,19 @@
-export type DagItem = {
+export interface DagItem {
     depends: string[];
     completed: boolean;
-};
+}
 
-export type Dag = {
+export interface Dag {
     [key: string]: DagItem;
-};
+}
 
-export type Condition = {
+export interface Condition {
     title: string;
     key: string;
     value: number | "max";
-};
+}
 
-export type Requirement = {
+export interface Requirement {
     value: number;
     description: string;
     query?: string;
@@ -22,27 +22,27 @@ export type Requirement = {
         variable: string;
     } | "self";
     conditions?: Condition[];
-};
+}
 
 export type RequirementScored = Omit<Requirement, "query" | "conditions"> & {
     enabled: boolean;
 };
 
-export type Prerequisite = {
+export interface Prerequisite {
     conditions: Condition[];
-};
+}
 
 export type PrerequisiteScored = Prerequisite & {
     enabled: boolean;
 };
 
-export type ScoreDef = {
+export interface ScoreDef {
     title: string;
     description: string;
     prerequisites?: Prerequisite;
     scores?: ScoreDefObj;
     requirements?: Requirement[];
-};
+}
 
 export type ScoreValue = Omit<ScoreDef, "scores" | "prerequisites" | "requirements"> & {
     value: number;
@@ -52,33 +52,33 @@ export type ScoreValue = Omit<ScoreDef, "scores" | "prerequisites" | "requiremen
     requirements?: RequirementScored[];
 };
 
-export type ScoreDefObj = {
+export interface ScoreDefObj {
     [key: string]: ScoreDef;
-};
+}
 
-export type TopScoreValueObj = {
+export interface TopScoreValueObj {
     version: string;
     created: string;
     refResource: string;
     scores: ScoreValueObj;
-};
+}
 
-export type ScoreValueObj = {
+export interface ScoreValueObj {
     [key: string]: ScoreValue;
-};
+}
 
-export type SPARQLResultsJSON = {
+export interface SPARQLResultsJSON {
     head: {
         vars?: string[];
         link?: string[];
-    },
+    };
     results?: {
         bindings: Record<string, {
-            type: "uri" | "literal" | "bnode";
-            value: string;
+            "type": "uri" | "literal" | "bnode";
+            "value": string;
             "xml:lang"?: string;
-            datatype?: string;
+            "datatype"?: string;
         }>[];
-    },
+    };
     boolean?: boolean;
-};
+}

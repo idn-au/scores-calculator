@@ -1,6 +1,6 @@
-import "./assets/index.css";
-
 import Scores from "./components/Scores.vue";
+
+import "./assets/index.css";
 
 export * from "./types";
 

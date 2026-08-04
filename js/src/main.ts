@@ -1,8 +1,6 @@
+import type { SPARQLResultsJSON } from "./types.ts";
 import init, * as oxigraph from "oxigraph/web";
 import { ScoreCalculator } from "./score";
-import type {SPARQLResultsJSON} from "./types.ts";
-
-const OXIGRAPH_VERSION = "0.5.8";
 
 const example = `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -73,9 +71,9 @@ _:b2 a sdo:DigitalDocument ;
 const emptyData = "";
 
 function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false): SPARQLResultsJSON | boolean {
-    const options = {use_default_graph_as_union: true};
+    const options = { use_default_graph_as_union: true };
     if (!ask) {
-        options.results_format = "application/sparql-results+json"
+        options.results_format = "application/sparql-results+json";
     }
     let result = store.query(query, options);
     if (!ask) {
@@ -85,17 +83,17 @@ function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false)
 }
 
 async function fairScore(output: "json" | "turtle") {
-    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
+    await init({ module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm" });
     const store = new oxigraph.Store();
     store.load(example, { format: "text/turtle" });
 
     function askQuery(query: string): boolean {
-        const result = store.query(query, {use_default_graph_as_union: true});
+        const result = store.query(query, { use_default_graph_as_union: true });
         return result;
     }
 
     function selectQuery(query: string): SPARQLResultsJSON {
-        const result = store.query(query, {use_default_graph_as_union: true, results_format: "application/sparql-results+json",});
+        const result = store.query(query, { use_default_graph_as_union: true, results_format: "application/sparql-results+json" });
         return JSON.parse(result);
     }
 
@@ -104,12 +102,12 @@ async function fairScore(output: "json" | "turtle") {
 }
 
 async function careScore(output: "json" | "turtle") {
-    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
+    await init({ module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm" });
     const store = new oxigraph.Store();
     store.load(example, { format: "text/turtle" });
 
     const calculator = await ScoreCalculator.init(["care"]);
-    return await calculator.score("https://example.com/example1", "care", output, (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query));
+    return await calculator.score("https://example.com/example1", "care", output, query => sparqlQuery(store, query, true), query => sparqlQuery(store, query));
 }
 
 function doScoringJSON() {
@@ -117,7 +115,7 @@ function doScoringJSON() {
         document.querySelector<HTMLPreElement>("#data")!.innerText = example;
         const [fair, care] = await Promise.all([fairScore("json"), careScore("json")]);
         // const fair = await fairScore("json");
-        document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify({fair, care}, null, 2);
+        document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify({ fair, care }, null, 2);
         // document.querySelector<HTMLPreElement>("#score")!.innerText = JSON.stringify(fair, null, 2);
     });
 }

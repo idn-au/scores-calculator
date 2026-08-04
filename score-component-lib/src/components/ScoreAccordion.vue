@@ -1,25 +1,27 @@
 <script lang="ts" setup>
-import { Square, SquareCheckBig } from "lucide-vue-next";
 import type { ScoreValueObj } from "@idn-au/scores-calculator-js";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Square, SquareCheckBig } from "lucide-vue-next";
 import CircleProgress from "@/components/CircleProgress.vue";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
 
 const props = defineProps<{
     scores: ScoreValueObj;
-	defaultValue?: string;
+    defaultValue?: string;
 }>();
 </script>
 
 <template>
-    <Accordion type="single" collapsible :defaultValue="defaultValue">
+    <Accordion type="single" collapsible :default-value="defaultValue">
         <AccordionItem v-for="[key, score] in Object.entries(props.scores)" :value="key" class="">
             <AccordionTrigger class="cursor-pointer hover:bg-accent/50 hover:no-underline p-4">
                 <div class="flex flex-row gap-4 grow items-start">
                     <CircleProgress :value="score.value" :max="score.max" class="max-w-16 md:max-w-20 transition-all" />
                     <div class="flex flex-col gap-2 text-left grow">
                         <h3>{{ score.title }}</h3>
-                        <p class="text-sm text-muted-foreground">{{ score.description }}</p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ score.description }}
+                        </p>
                     </div>
                 </div>
             </AccordionTrigger>
