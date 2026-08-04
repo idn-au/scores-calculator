@@ -3,8 +3,8 @@ import { ref, onMounted } from "vue";
 import init, * as oxigraph from "oxigraph/web";
 import {ScoreCalculator, type SPARQLResultsJSON, TopScoreValueObj} from "@idn-au/scores-calculator-js";
 import Scores from "./components/Scores.vue";
-
-const OXIGRAPH_VERSION = "0.5.8";
+import CircleProgress from "./components/CircleProgress.vue";
+import {Button} from "./components/ui/button";
 
 const example = `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
@@ -92,7 +92,7 @@ function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false)
 }
 
 onMounted(async () => {
-	await init({module_or_path: `https://cdn.jsdelivr.net/npm/oxigraph@${OXIGRAPH_VERSION}/web_bg.wasm`});
+	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
 	const store = new oxigraph.Store();
 	store.load(example, { format: "text/turtle" });
 
@@ -109,11 +109,13 @@ onMounted(async () => {
 </script>
 
 <template>
-	<div :class="colorMode">
+	<div class="p-2">
 		<h1>Scores Vue Component Library</h1>
-		<button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">colour mode</button>
-		<div class="p-3 bg-background text-foreground">
-			<Scores title="FAIR" :score="fair" />
+		<Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
+			toggle colour mode
+		</Button>
+		<div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
+			<Scores title="FAIR" :score="fair" compact />
 			<Scores title="CARE" :score="care" />
 		</div>
 	</div>

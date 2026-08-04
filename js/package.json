@@ -31,10 +31,10 @@
         "preinstall": "npx only-allow pnpm"
     },
     "devDependencies": {
-        "oxigraph": "^0.5.8",
+        "oxigraph": "^0.5.9",
         "typescript": "~6.0.3",
-        "vite": "^8.0.14",
-        "vite-plugin-dts": "^5.0.1"
+        "vite": "^8.1.5",
+        "vite-plugin-dts": "^5.0.3"
     },
     "dependencies": {
         "yaml": "^2.9.0"

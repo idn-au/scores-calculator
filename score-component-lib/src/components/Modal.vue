@@ -2,10 +2,15 @@
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const model = defineModel<boolean>();
+
+const emit = defineEmits<{
+	open: [];
+	close: [];
+}>();
 </script>
 
 <template>
-    <Dialog v-model:open="model">
+    <Dialog v-model:open="model" @update:open="$event ? emit('open') : emit('close')">
         <DialogTrigger as-child>
             <slot name="trigger" />
         </DialogTrigger>

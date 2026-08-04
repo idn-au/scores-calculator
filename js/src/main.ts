@@ -85,7 +85,7 @@ function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false)
 }
 
 async function fairScore(output: "json" | "turtle") {
-    await init({module_or_path: `https://cdn.jsdelivr.net/npm/oxigraph@${OXIGRAPH_VERSION}/web_bg.wasm`});
+    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
     const store = new oxigraph.Store();
     store.load(example, { format: "text/turtle" });
 
@@ -104,7 +104,7 @@ async function fairScore(output: "json" | "turtle") {
 }
 
 async function careScore(output: "json" | "turtle") {
-    await init({module_or_path: `https://cdn.jsdelivr.net/npm/oxigraph@${OXIGRAPH_VERSION}/web_bg.wasm`});
+    await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
     const store = new oxigraph.Store();
     store.load(example, { format: "text/turtle" });
 

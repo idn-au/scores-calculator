@@ -64,7 +64,7 @@ const dashOffset = computed(() => (percent.value / 100) * circumference);
 				</ProgressIndicator>
 			</svg>
 			<div class="absolute inset-0 flex items-center justify-center">
-				<span class="text-sm">
+				<span class="progress-label text-sm">
 					<Skeleton v-if="props.loading" class="rounded w-5 h-4" />
 	                <template v-else-if="props.label">{{ props.label }}</template>
 	                <Check v-else-if="props.tickWhenComplete && percent === 100" class="size-6"/>

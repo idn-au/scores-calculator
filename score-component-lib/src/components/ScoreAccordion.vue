@@ -7,11 +7,12 @@ import CircleProgress from "@/components/CircleProgress.vue";
 
 const props = defineProps<{
     scores: ScoreValueObj;
+	defaultValue?: string;
 }>();
 </script>
 
 <template>
-    <Accordion type="single" collapsible>
+    <Accordion type="single" collapsible :defaultValue="defaultValue">
         <AccordionItem v-for="[key, score] in Object.entries(props.scores)" :value="key" class="">
             <AccordionTrigger class="cursor-pointer hover:bg-accent/50 hover:no-underline p-4">
                 <div class="flex flex-row gap-4 grow items-start">
