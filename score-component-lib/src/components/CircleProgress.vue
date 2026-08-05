@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { HTMLAttributes } from "vue";
-import { Check } from "lucide-vue-next";
+import { Check } from "@lucide/vue";
 import { ProgressIndicator, ProgressRoot } from "reka-ui";
 import { computed } from "vue";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -49,10 +49,10 @@ const dashOffset = computed(() => (percent.value / 100) * circumference);
 
 <template>
     <div :class="cn('relative shrink-0', props.class)">
-        <ProgressRoot v-model="percent" as-child>
+        <ProgressRoot v-model="percent" asChild>
             <svg :class="`w-full h-full ${props.loading ? 'animate-pulse' : ''}`" viewBox="0 0 100 100">
                 <path :d="trackPath" class="fill-none stroke-muted" :style="{ 'stroke-width': `${STROKE_WIDTH}px` }" />
-                <ProgressIndicator as-child>
+                <ProgressIndicator asChild>
                     <path
                         :d="trackPath"
                         class="fill-none transition-[stroke-dasharray,opacity] duration-700 data-[value='0']:opacity-0"

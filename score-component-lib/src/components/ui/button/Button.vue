@@ -23,7 +23,7 @@ const props = withDefaults(defineProps<Props>(), {
         :data-variant="variant"
         :data-size="size"
         :as="as"
-        :as-child="asChild"
+        :asChild="asChild"
         :class="cn(buttonVariants({ variant, size }), props.class)"
     >
         <slot />

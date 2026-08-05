@@ -7,6 +7,7 @@ import type {
     ScoreValue,
     ScoreValueObj,
     SPARQLResultsJSON,
+    TopScoreDefObj,
     TopScoreValueObj,
 } from "./types";
 import { parse as parseYaml } from "yaml";
@@ -26,16 +27,16 @@ const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
 
 export class ScoreCalculator {
     public scoreMap: Record<string, {
-        def: ScoreDefObj;
+        def: TopScoreDefObj;
         dag: Dag;
         valueTemplate: TopScoreValueObj;
     }>;
 
     public urlMap: Record<string, boolean>;
 
-    constructor(scoreDefs: Record<string, ScoreDefObj>) {
+    constructor(scoreDefs: Record<string, TopScoreDefObj>) {
         const map: Record<string, {
-            def: ScoreDefObj;
+            def: TopScoreDefObj;
             dag: Dag;
             valueTemplate: TopScoreValueObj;
         }> = {};
@@ -56,15 +57,15 @@ export class ScoreCalculator {
     static async init(scoreTypes: string[]) {
         // get score def files
         const promises = await Promise.all(scoreTypes.map(async (s) => {
-            const r = await fetch(`${DEFINITION_URL_PREFIX}/${s.toLowerCase()}Def.yaml`);
+            const r = await fetch(`${DEFINITION_URL_PREFIX}/${s.toLowerCase()}.yaml`);
             const r_1 = await r.text();
-            const obj = parseYaml(r_1) as ScoreDefObj;
+            const obj = parseYaml(r_1) as TopScoreDefObj;
             return { score: s, def: obj };
         }));
         const scoreDefs = promises.reduce((obj, curr) => {
             obj[curr.score] = curr.def;
             return obj;
-        }, {} as Record<string, ScoreDefObj>);
+        }, {} as Record<string, TopScoreDefObj>);
 
         return new ScoreCalculator(scoreDefs);
     }
@@ -256,13 +257,15 @@ export class ScoreCalculator {
      * @param obj
      * @returns
      */
-    private buildDag(obj: ScoreDefObj): { dag: Dag; scoredObj: TopScoreValueObj } {
+    private buildDag(obj: TopScoreDefObj): { dag: Dag; scoredObj: TopScoreValueObj } {
         const dag: Dag = {};
         const scoredObj: TopScoreValueObj = {
-            version: __APP_VERSION__,
+            title: obj.title,
+            description: obj.description,
+            version: obj.version,
             refResource: "",
             created: "",
-            scores: this.traverseScores(obj, dag),
+            scores: this.traverseScores(obj.scores, dag),
         };
 
         return { dag, scoredObj };
@@ -290,8 +293,8 @@ export class ScoreCalculator {
     public async score(iri: string, scoreType: string, output: "json" | "turtle", askQueryFn: (query: string) => boolean, selectQueryFn: (query: string) => SPARQLResultsJSON): Promise<TopScoreValueObj | string> {
         const { dag, scoredObj } = this.newScoreValueObj(scoreType, iri);
 
-        for (const key of Object.keys(this.scoreMap[scoreType].def)) {
-            await this.scoreByKey(key, this.scoreMap[scoreType].def, dag, scoredObj.scores, iri, askQueryFn, selectQueryFn);
+        for (const key of Object.keys(this.scoreMap[scoreType].def.scores)) {
+            await this.scoreByKey(key, this.scoreMap[scoreType].def.scores, dag, scoredObj.scores, iri, askQueryFn, selectQueryFn);
         }
 
         if (output === "json") {

@@ -20,6 +20,9 @@ export default antfu(
             "vue/block-order": ["error", {
                 order: ["script", "template", "style"],
             }],
+            "vue/attribute-hyphenation": ["error", "never", {
+                ignore: ["custom-prop"],
+            }],
         },
     },
 );

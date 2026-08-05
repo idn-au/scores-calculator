@@ -1,41 +1,49 @@
 PREFIX dcat: <http://www.w3.org/ns/dcat#>
 PREFIX qb: <http://purl.org/linked-data/cube#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX scores: <https://linked.data.gov.au/def/scores/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
 <https://data.idnau.org/pid/AAC>
     a dcat:Resource ;
-    scores:hasScore [
-        a qb:ObservationGroup ,
-            scores:FairScore ;
-        qb:observation [
-            a qb:Observation ;
-            scores:fairFScore 10 ;
-            qb:observationGroup [
-                a qb:ObservationGroup ;
-                scores:fairFScores ;
-                qb:observation [
+    scores:hasScore
+        [
+            a
+                qb:ObservationGroup ,
+                scores:FairScore ;
+            qb:observation 
+                [
                     a qb:Observation ;
-                    scores:fairF1Score 10 ; # or rdf:value?
-                    scores:hasRequirements [ # ordered?
-                        a scores:Requirement ;
-                        rdf:value 1 ; # or 0 for disabled
-                    ]
-                ]
-            ]
-        ] ,
-        [
-            a qb:Observation ;
-            scores:fairAScore 0
-        ] ,
-        [
-            a qb:Observation ;
-            scores:fairIScore 5
-        ] ,
-        [
-            a qb:Observation ;
-            scores:fairRScore 5
+                    scores:fairIScore 5 ;
+                ] ,
+                [
+                    a qb:Observation ;
+                    scores:fairAScore 0 ;
+                ] ,
+                [
+                    a qb:Observation ;
+                    scores:fairRScore 5 ;
+                ] ,
+                [
+                    a qb:Observation ;
+                    qb:observationGroup
+                        [
+                            a
+                                qb:ObservationGroup ,
+                                scores:fairFScores ;
+                            qb:observation
+                                [
+                                    a qb:Observation ;
+                                    scores:fairF1Score 10 ;
+                                    scores:hasRequirements
+                                        [
+                                            a scores:Requirement ;
+                                            rdf:value 1 ;
+                                        ] ;
+                                ] ;
+                        ] ;
+                    scores:fairFScore 10 ;
+                ] ;
+            scores:refResource <https://data.idnau.org/pid/AAC> ;
         ] ;
-        scores:refResource <https://data.idnau.org/pid/AAC>
-    ] ;
 .

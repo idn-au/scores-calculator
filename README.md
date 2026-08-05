@@ -1,6 +1,6 @@
 # Scores Calculator
 
-This is a collection of packages that can calculate [FAIR](https://www.go-fair.org/fair-principles/), [CARE](https://ardc.edu.au/resource/the-care-principles/) and other scores for datasets, based on DCAT-style metadata.
+This is a collection of packages that can calculate [FAIR](https://www.go-fair.org/fair-principles/), [CARE](https://www.gida-global.org/careprinciples) and other scores for datasets, based on DCAT-style metadata.
 
 ## Installation
 To install the NPM packages for the JavaScript scoring library and component library, you will need an authenticated token to install NPM packages from GitHub's NPM registry.
@@ -13,6 +13,25 @@ npm install @idn-au/scores-calculator-js
 
 ```bash
 npm install @idn-au/score-component-lib
+```
+
+## Development
+To install the workspace (requires pnpm):
+
+```bash
+pnpm install
+```
+
+To run each dev server, run the following in each packages' directory:
+
+```bash
+pnpm dev
+```
+
+To build (required to run the Vue component library), run:
+
+```bash
+pnpm build
 ```
 
 ## Calculator logic

@@ -56,7 +56,20 @@ export interface ScoreDefObj {
     [key: string]: ScoreDef;
 }
 
+export interface TopScoreDefObj {
+    title: string;
+    description: string;
+    version: string;
+    historyNotes?: {
+        version: string;
+        note: string;
+    }[];
+    scores: ScoreDefObj;
+}
+
 export interface TopScoreValueObj {
+    title: string;
+    description: string;
     version: string;
     created: string;
     refResource: string;

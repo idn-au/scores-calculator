@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import type { ScoreValueObj } from "@idn-au/scores-calculator-js";
-import { Square, SquareCheckBig } from "lucide-vue-next";
+import { Square, SquareCheckBig } from "@lucide/vue";
 import CircleProgress from "@/components/CircleProgress.vue";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,7 +12,7 @@ const props = defineProps<{
 </script>
 
 <template>
-    <Accordion type="single" collapsible :default-value="defaultValue">
+    <Accordion type="single" collapsible :defaultValue="defaultValue">
         <AccordionItem v-for="[key, score] in Object.entries(props.scores)" :value="key" class="">
             <AccordionTrigger class="cursor-pointer hover:bg-accent/50 hover:no-underline p-4">
                 <div class="flex flex-row gap-4 grow items-start">

@@ -7,64 +7,72 @@ PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX sdo: <https://schema.org/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-<https://example.com/example1> a sdo:CreativeWork ;
-    sdo:usageInfo <https://linked.data.gov.au/def/data-access-rights/open> ;
-    sdo:dateCreated "2024-08-12"^^xsd:date ;
-    sdo:description "This is a description for example 1" ;
-    sdo:dateIssued "2024-08-12"^^xsd:date ;
-    sdo:license <http://purl.org/NET/rdflicense/allrightsreserved> ;
-    sdo:dateModified "2024-08-12"^^xsd:date ;
+<https://example.com/example1>
+    a sdo:CreativeWork ;
+    prov:qualifiedAttribution 
+        [
+            prov:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+            sdo:agent <https://example.com/custodianagent> ;
+        ] ,
+        [
+            prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+            sdo:agent <https://example.com/contactagent> ;
+        ] ;
+    prov:wasInfluencedBy _:b0 ,
+        [
+            a sdo:DigitalDocument ;
+            sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> ;
+            sdo:description "Description of the archive policy" ;
+        ] ;
     sdo:copyrightNotice "rights" ;
-    sdo:keywords <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> ;
-    sdo:spatialCoverage [
-        a geo:Geometry ;
-        geo:asWKT "POLYGON ((0 1 2 3 4))"^^geo:wktLiteral ;
-    ] ;
-    sdo:temporalCoverage [
-        prov:endedAtTime "2024-07"^^xsd:monthYear ;
-        prov:startedAtTime "2023"^^xsd:gYear ;
-    ] ;
+    sdo:dateCreated "2024-08-12"^^xsd:date ;
+    sdo:dateIssued "2024-08-12"^^xsd:date ;
+    sdo:dateModified "2024-08-12"^^xsd:date ;
+    sdo:description "This is a description for example 1" ;
+    sdo:distribution
+        [
+            sdo:contentUrl "https://data.idnau.org"^^xsd:anyURI ;
+        ] ;
+    sdo:keywords
+        <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> ,
+        <https://vocabularyserver.com/apais/xml.php?skosTema=147> ,
+        <https://vocabularyserver.com/apais/xml.php?skosTema=181> ;
+    sdo:license <http://purl.org/NET/rdflicense/allrightsreserved> ;
     sdo:name "Example 1" ;
-    sdo:distribution [
-        sdo:contentUrl "https://data.idnau.org"^^xsd:anyURI ;
-    ] ;
-    sdo:keywords <https://vocabularyserver.com/apais/xml.php?skosTema=181> ,
-        <https://vocabularyserver.com/apais/xml.php?skosTema=147> ;
-    prov:qualifiedAttribution [
-        prov:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
-        sdo:agent <https://example.com/custodianagent> ;
-    ] ,
-    [
-        prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
-        sdo:agent <https://example.com/contactagent> ;
-    ] ;
-    prov:wasInfluencedBy _:b1 ,
-        _:b2 ;
+    sdo:spatialCoverage
+        [
+            a geo:Geometry ;
+            geo:asWKT "POLYGON ((0 1 2 3 4))"^^geo:wktLiteral ;
+        ] ;
+    sdo:temporalCoverage
+        [
+            prov:endedAtTime "2024-07"^^xsd:monthYear ;
+            prov:startedAtTime "2023"^^xsd:gYear ;
+        ] ;
+    sdo:usageInfo <https://linked.data.gov.au/def/data-access-rights/open> ;
 .
 
-<https://example.com/custodianagent> a sdo:Organization ;
-    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> ;
-    sdo:description "Custodian agent description" ;
-    sdo:identifier "id1"^^xsd:token ;
-    sdo:name "Custodian Agent" ;
-    prov:contributed _:b1 ;
-.
-
-<https://example.com/contactagent> a sdo:Person ;
-    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigeneity-unknown> ;
+<https://example.com/contactagent>
+    a sdo:Person ;
     sdo:description "Contact agent description" ;
     sdo:identifier "id2"^^xsd:token ;
+    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigeneity-unknown> ;
     sdo:name "Contact Agent" ;
 .
 
-_:b1 a sdo:DigitalDocument ;
-    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
-    sdo:url "https://example.com/idg-framework"^^xsd:anyURI ;
+<https://example.com/custodianagent>
+    a sdo:Organization ;
+    prov:contributed _:b0 ;
+    sdo:description "Custodian agent description" ;
+    sdo:identifier "id1"^^xsd:token ;
+    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> ;
+    sdo:name "Custodian Agent" ;
 .
 
-_:b2 a sdo:DigitalDocument ;
-    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> ;
-    sdo:description "Description of the archive policy" ;
+_:b0
+    a sdo:DigitalDocument ;
+    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    sdo:url "https://example.com/idg-framework"^^xsd:anyURI ;
 .
 `;
 
