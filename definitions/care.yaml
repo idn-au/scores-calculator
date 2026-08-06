@@ -269,6 +269,9 @@ scores:
           - value: 1
             description: At least two themes have been selected
             query: "ASK { ?iri sdo:keywords ?theme }"
+          - value: 1
+            description: At least one language from AustLang has been selected
+            query: "ASK { ?iri sdo:inLanguage ?austlang }"
   e:
     title: Ethics
     description: Indigenous Peoples' rights and wellbeing should be the primary concern at all stages of the data life cycle and across the data ecosystem.
