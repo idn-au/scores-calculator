@@ -1,29 +1,29 @@
 {
     "compilerOptions": {
         "target": "ESNext",
-        "useDefineForClassFields": true,
-        "module": "ESNext",
+        "jsx": "preserve",
         "lib": [
             "ES2020",
             "DOM",
             "DOM.Iterable"
         ],
-        "skipLibCheck": true,
+        "useDefineForClassFields": true,
+        "module": "ESNext",
         "moduleResolution": "bundler",
-        "allowImportingTsExtensions": true,
-        "resolveJsonModule": true,
-        "isolatedModules": true,
-        "noEmit": true,
-        "jsx": "preserve",
-        "strict": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "noFallthroughCasesInSwitch": true,
         "paths": {
             "@/*": [
                 "./src/*"
             ]
-        }
+        },
+        "resolveJsonModule": true,
+        "allowImportingTsExtensions": true,
+        "strict": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "noEmit": true,
+        "isolatedModules": true,
+        "skipLibCheck": true
     },
     "include": [
         "env.d.ts",
@@ -35,5 +35,5 @@
         "src/main.ts",
         "src/App.vue",
         "src/**/__tests__/*"
-    ],
+    ]
 }

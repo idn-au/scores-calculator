@@ -1,3 +1,8 @@
 node_modules/
 .DS_Score
 test.html
+tsconfig.tsbuildinfo
+.idea
+.vscode
+.eslintcache
+public/definitions/

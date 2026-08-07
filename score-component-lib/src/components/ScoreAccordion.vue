@@ -1,13 +1,13 @@
 <script lang="ts" setup>
-import { Square, SquareCheckBig } from "lucide-vue-next";
 import type { ScoreValueObj } from "@idn-au/scores-calculator-js";
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Card, CardContent } from "@/components/ui/card";
+import { Square, SquareCheckBig } from "@lucide/vue";
 import CircleProgress from "@/components/CircleProgress.vue";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Card, CardContent } from "@/components/ui/card";
 
 const props = defineProps<{
     scores: ScoreValueObj;
-	defaultValue?: string;
+    defaultValue?: string;
 }>();
 </script>
 
@@ -19,7 +19,9 @@ const props = defineProps<{
                     <CircleProgress :value="score.value" :max="score.max" class="max-w-16 md:max-w-20 transition-all" />
                     <div class="flex flex-col gap-2 text-left grow">
                         <h3>{{ score.title }}</h3>
-                        <p class="text-sm text-muted-foreground">{{ score.description }}</p>
+                        <p class="text-sm text-muted-foreground">
+                            {{ score.description }}
+                        </p>
                     </div>
                 </div>
             </AccordionTrigger>

@@ -1,3 +1,3 @@
-export type MyType = {
+export interface MyType {
     key: string;
-};
+}

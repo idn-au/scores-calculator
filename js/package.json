@@ -1,12 +1,25 @@
 {
     "name": "@idn-au/scores-calculator-js",
-    "version": "0.4.1",
     "type": "module",
-    "files": [
-        "dist"
+    "version": "0.5.0",
+    "description": "",
+    "author": "jamie.feiss@gmail.com",
+    "license": "BSD-3-Clause",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/idn-au/scores-calculator.git",
+        "directory": "js"
+    },
+    "keywords": [
+        "FAIR",
+        "CARE",
+        "metadata",
+        "scoring",
+        "rdf",
+        "linked-data",
+        "semantic-web",
+        "knowledge-graph"
     ],
-    "main": "./dist/scores-calculator-js.umd.cjs",
-    "module": "./dist/scores-calculator-js.js",
     "exports": {
         ".": {
             "types": "./dist/index.d.ts",
@@ -14,14 +27,14 @@
             "require": "./dist/scores-calculator-js.umd.cjs"
         }
     },
+    "main": "./dist/scores-calculator-js.umd.cjs",
+    "module": "./dist/scores-calculator-js.js",
     "types": "./dist/index.d.ts",
+    "files": [
+        "dist"
+    ],
     "publishConfig": {
         "registry": "https://npm.pkg.github.com"
-    },
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/idn-au/scores-calculator.git",
-        "directory": "js"
     },
     "scripts": {
         "dev": "vite",
@@ -30,13 +43,13 @@
         "preview": "vite preview",
         "preinstall": "npx only-allow pnpm"
     },
+    "dependencies": {
+        "yaml": "^2.9.0"
+    },
     "devDependencies": {
         "oxigraph": "^0.5.9",
         "typescript": "~6.0.3",
         "vite": "^8.1.5",
         "vite-plugin-dts": "^5.0.3"
-    },
-    "dependencies": {
-        "yaml": "^2.9.0"
     }
 }

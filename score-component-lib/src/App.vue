@@ -1,76 +1,83 @@
 <script lang="ts" setup>
-import { ref, onMounted } from "vue";
+import type { SPARQLResultsJSON, TopScoreValueObj } from "@idn-au/scores-calculator-js";
+import { ScoreCalculator } from "@idn-au/scores-calculator-js";
 import init, * as oxigraph from "oxigraph/web";
-import {ScoreCalculator, type SPARQLResultsJSON, TopScoreValueObj} from "@idn-au/scores-calculator-js";
+import { onMounted, ref } from "vue";
 import Scores from "./components/Scores.vue";
-import CircleProgress from "./components/CircleProgress.vue";
-import {Button} from "./components/ui/button";
+import { Button } from "./components/ui/button";
 
-const example = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
-PREFIX dcterms: <http://purl.org/dc/terms/>
-PREFIX geo: <http://www.opengis.net/ont/geosparql#>
+const example = `PREFIX geo: <http://www.opengis.net/ont/geosparql#>
 PREFIX prov: <http://www.w3.org/ns/prov#>
 PREFIX sdo: <https://schema.org/>
 PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
 
-<https://example.com/example1> a dcat:Resource ;
-    dcterms:accessRights <https://linked.data.gov.au/def/data-access-rights/open> ;
-    dcterms:created "2024-08-12"^^xsd:date ;
-    dcterms:description "This is a description for example 1" ;
-    dcterms:issued "2024-08-12"^^xsd:date ;
-    dcterms:license <http://purl.org/NET/rdflicense/allrightsreserved> ;
-    dcterms:modified "2024-08-12"^^xsd:date ;
-    dcterms:rights "rights" ;
-    dcterms:type <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> ;
-    dcterms:spatial [
-        a geo:Geometry ;
-        geo:asWKT "POLYGON ((0 1 2 3 4))"^^geo:wktLiteral ;
-    ] ;
-    dcterms:temporal [
-        prov:endedAtTime "2024-07"^^xsd:monthYear ;
-        prov:startedAtTime "2023"^^xsd:gYear ;
-    ] ;
-    dcterms:title "Example 1" ;
-    dcat:distribution [
-        dcat:accessURL "https://example.com/distribution"^^xsd:anyURI ;
-    ] ;
-    dcat:theme <https://vocabularyserver.com/apais/xml.php?skosTema=181> ,
-        <https://vocabularyserver.com/apais/xml.php?skosTema=147> ;
-    prov:qualifiedAttribution [
-        dcat:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
-        prov:agent <https://example.com/custodianagent> ;
-    ] ,
-    [
-        dcat:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
-        prov:agent <https://example.com/contactagent> ;
-    ] ;
-    prov:wasInfluencedBy _:b1 ,
-        _:b2 ;
+<https://example.com/example1>
+    a sdo:CreativeWork ;
+    prov:qualifiedAttribution
+        [
+            prov:hadRole <https://linked.data.gov.au/def/data-roles/custodian> ;
+            sdo:agent <https://example.com/custodianagent> ;
+        ] ,
+        [
+            prov:hadRole <https://linked.data.gov.au/def/data-roles/pointOfContact> ;
+            sdo:agent <https://example.com/contactagent> ;
+        ] ;
+    prov:wasInfluencedBy _:b0 ,
+        [
+            a sdo:DigitalDocument ;
+            sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> ;
+            sdo:description "Description of the archive policy" ;
+        ] ;
+    sdo:copyrightNotice "rights" ;
+    sdo:dateCreated "2024-08-12"^^xsd:date ;
+    sdo:dateIssued "2024-08-12"^^xsd:date ;
+    sdo:dateModified "2024-08-12"^^xsd:date ;
+    sdo:description "This is a description for example 1" ;
+    sdo:distribution
+        [
+            sdo:contentUrl "https://data.idnau.org"^^xsd:anyURI ;
+        ] ;
+    sdo:inLanguage <https://data.idnau.org/pid/austlang/L13> ;
+    sdo:keywords
+        <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> ,
+        <https://vocabularyserver.com/apais/xml.php?skosTema=147> ,
+        <https://vocabularyserver.com/apais/xml.php?skosTema=181> ;
+    sdo:license <http://purl.org/NET/rdflicense/allrightsreserved> ;
+    sdo:name "Example 1" ;
+    sdo:spatialCoverage
+        [
+            a geo:Geometry ;
+            geo:asWKT "POLYGON ((0 1 2 3 4))"^^geo:wktLiteral ;
+        ] ;
+    sdo:temporalCoverage
+        [
+            prov:endedAtTime "2024-07"^^xsd:monthYear ;
+            prov:startedAtTime "2023"^^xsd:gYear ;
+        ] ;
+    sdo:usageInfo <https://linked.data.gov.au/def/data-access-rights/open> ;
 .
 
-<https://example.com/custodianagent> a sdo:Organization ;
-    dcterms:type <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> ;
-    sdo:description "Custodian agent description" ;
-    sdo:identifier "id1"^^xsd:token ;
-    sdo:name "Custodian Agent" ;
-    prov:contributed _:b1 ;
-.
-
-<https://example.com/contactagent> a sdo:Person ;
-    dcterms:type <https://data.idnau.org/pid/vocab/org-indigeneity/indigeneity-unknown> ;
+<https://example.com/contactagent>
+    a sdo:Person ;
     sdo:description "Contact agent description" ;
     sdo:identifier "id2"^^xsd:token ;
+    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigeneity-unknown> ;
     sdo:name "Contact Agent" ;
 .
 
-_:b1 a sdo:DigitalDocument ;
-    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
-    sdo:url "https://example.com/idg-framework"^^xsd:anyURI ;
+<https://example.com/custodianagent>
+    a sdo:Organization ;
+    prov:contributed _:b0 ;
+    sdo:description "Custodian agent description" ;
+    sdo:identifier "id1"^^xsd:token ;
+    sdo:keywords <https://data.idnau.org/pid/vocab/org-indigeneity/indigenous-persons-organisation> ;
+    sdo:name "Custodian Agent" ;
 .
 
-_:b2 a sdo:DigitalDocument ;
-    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/data-policy> ;
-    sdo:description "Description of the archive policy" ;
+_:b0
+    a sdo:DigitalDocument ;
+    sdo:additionalType <https://data.idnau.org/pid/vocab/policy-types/indigenous-data-governance> ;
+    sdo:url "https://example.com/idg-framework"^^xsd:anyURI ;
 .
 `;
 
@@ -82,43 +89,43 @@ const care = ref({} as TopScoreValueObj);
 const colorMode = ref("light");
 
 function sparqlQuery(store: oxigraph.Store, query: string, ask: boolean = false): SPARQLResultsJSON | boolean {
-	const options = {use_default_graph_as_union: true};
-	if (!ask) {
-		options.results_format = "application/sparql-results+json"
-	}
-	let result = store.query(query, options);
-	if (!ask) {
-		result = JSON.parse(result as string) as SPARQLResultsJSON;
-	}
-	return result;
+    const options = { use_default_graph_as_union: true };
+    if (!ask) {
+        options.results_format = "application/sparql-results+json";
+    }
+    let result = store.query(query, options);
+    if (!ask) {
+        result = JSON.parse(result as string) as SPARQLResultsJSON;
+    }
+    return result;
 }
 
 onMounted(async () => {
-	await init({module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm"});
-	const store = new oxigraph.Store();
-	store.load(example, { format: "text/turtle" });
+    await init({ module_or_path: "https://cdn.jsdelivr.net/npm/oxigraph@0.5.9/web_bg.wasm" });
+    const store = new oxigraph.Store();
+    store.load(example, { format: "text/turtle" });
 
-	scoring = await ScoreCalculator.init(["fair", "care"]);
+    scoring = await ScoreCalculator.init(["fair", "care"]);
 
-	const p = await Promise.all([
-		scoring.score("https://example.com/example1", "fair", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query)),
-		scoring.score("https://example.com/example1", "care", "json", (query) => sparqlQuery(store, query, true), (query) => sparqlQuery(store, query))
-	]);
+    const p = await Promise.all([
+        scoring.score("https://example.com/example1", "fair", "json", query => sparqlQuery(store, query, true), query => sparqlQuery(store, query)),
+        scoring.score("https://example.com/example1", "care", "json", query => sparqlQuery(store, query, true), query => sparqlQuery(store, query)),
+    ]);
 
-	fair.value = p[0] as TopScoreValueObj;
-	care.value = p[1] as TopScoreValueObj;
+    fair.value = p[0] as TopScoreValueObj;
+    care.value = p[1] as TopScoreValueObj;
 });
 </script>
 
 <template>
-	<div class="p-2">
-		<h1>Scores Vue Component Library</h1>
-		<Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
-			toggle colour mode
-		</Button>
-		<div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
-			<Scores title="FAIR" :score="fair" compact />
-			<Scores title="CARE" :score="care" />
-		</div>
-	</div>
+    <div class="p-2">
+        <h1>Scores Vue Component Library</h1>
+        <Button @click="colorMode = colorMode === 'light' ? 'dark' : 'light'">
+            toggle colour mode
+        </Button>
+        <div :class="colorMode" class="p-3 bg-background text-foreground flex flex-col items-start">
+            <Scores keys="fair" v-bind="fair" compact />
+            <Scores keys="care" v-bind="care" />
+        </div>
+    </div>
 </template>

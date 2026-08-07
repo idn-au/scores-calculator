@@ -1,16 +1,20 @@
 {
     "name": "idn-score-calculators",
+    "version": "0.5.0",
     "private": true,
-    "version": "0.4.1",
     "description": "",
-    "main": "index.js",
+    "author": "jamie.feiss@gmail.com",
+    "license": "BSD-3-Clause",
+    "keywords": [],
     "scripts": {
-        "start": "pnpm --stream -r start",
-        "start:dev": "pnpm --stream -r run start:dev",
+        "lint": "eslint --fix --cache",
         "clean": "rm -rf .parcel-cache && pnpm -r run clean",
         "preinstall": "npx only-allow pnpm"
     },
-    "keywords": [],
-    "author": "jamie.feiss@gmail.com",
-    "license": "BSD-3-Clause"
+    "devDependencies": {
+        "@antfu/eslint-config": "^9.2.0",
+        "eslint": "^10.8.0",
+        "eslint-plugin-format": "^2.0.1",
+        "typescript": "^6.0.3"
+    }
 }
