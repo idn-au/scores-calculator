@@ -12,9 +12,9 @@ import type {
 } from "./types";
 import { parse as parseYaml } from "yaml";
 
-// const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
+const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@${__APP_VERSION__}/definitions`;
 // const DEFINITION_URL_PREFIX = `https://cdn.jsdelivr.net/gh/idn-au/scores-calculator@0.4.0/definitions`;
-const DEFINITION_URL_PREFIX = "/definitions";
+// const DEFINITION_URL_PREFIX = "/definitions";
 
 const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX dcterms: <http://purl.org/dc/terms/>

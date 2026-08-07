@@ -33,6 +33,7 @@ PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
         [
             sdo:contentUrl "https://data.idnau.org"^^xsd:anyURI ;
         ] ;
+    sdo:inLanguage <https://data.idnau.org/pid/austlang/L13> ;
     sdo:keywords
         <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> ,
         <https://vocabularyserver.com/apais/xml.php?skosTema=147> ,

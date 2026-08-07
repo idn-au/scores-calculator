@@ -816,6 +816,12 @@ The tables below describe the scoring rules described in the YAML files in the [
                                     <pre>ASK { ?iri dcat:theme ?theme }</pre>
                                 </td>
                             </tr>
+                            <tr>
+                                <td>At least one language from AustLang has been selected [1]</td>
+                                <td colspan="2"><p>Query</p>
+                                    <pre>ASK { ?iri sdo:inLanguage ?austlang }</pre>
+                                </td>
+                            </tr>
                         </table>
                     </td>
                 </tr>
