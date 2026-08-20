@@ -158,6 +158,66 @@ scores:
                   ?iri sdo:keywords <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
               }
           - value: 1
+            description: One or two Indigenous people have a recognised role in creating or contributing to the resource
+            query: |
+              ASK {
+                  {
+                      SELECT (COUNT(DISTINCT ?person) AS ?personCount)
+                      WHERE {
+                          {
+                              ?iri prov:qualifiedAttribution ?attribution .
+                              ?attribution a prov:Attribution ;
+                                  (dcat:hadRole|sdo:roleName) ?role ;
+                                  (prov:agent|sdo:agent) ?person .
+                              FILTER (
+                                  STRSTARTS(STR(?role), "https://linked.data.gov.au/def/data-roles/")
+                                  || EXISTS {
+                                      ?role a skos:Concept ;
+                                          skos:inScheme <https://linked.data.gov.au/def/data-roles> .
+                                  }
+                              )
+                          }
+                          UNION
+                          {
+                              ?iri (dcterms:creator|sdo:author) ?person .
+                          }
+                          ?person a sdo:Person ;
+                              (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
+                      }
+                  }
+                  FILTER (?personCount >= 1 && ?personCount <= 2)
+              }
+          - value: 2
+            description: Three or more Indigenous people have a recognised role in creating or contributing to the resource
+            query: |
+              ASK {
+                  {
+                      SELECT (COUNT(DISTINCT ?person) AS ?personCount)
+                      WHERE {
+                          {
+                              ?iri prov:qualifiedAttribution ?attribution .
+                              ?attribution a prov:Attribution ;
+                                  (dcat:hadRole|sdo:roleName) ?role ;
+                                  (prov:agent|sdo:agent) ?person .
+                              FILTER (
+                                  STRSTARTS(STR(?role), "https://linked.data.gov.au/def/data-roles/")
+                                  || EXISTS {
+                                      ?role a skos:Concept ;
+                                          skos:inScheme <https://linked.data.gov.au/def/data-roles> .
+                                  }
+                              )
+                          }
+                          UNION
+                          {
+                              ?iri (dcterms:creator|sdo:author) ?person .
+                          }
+                          ?person a sdo:Person ;
+                              (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
+                      }
+                  }
+                  FILTER (?personCount >= 3)
+              }
+          - value: 1
             description: URL link to an Indigenous Data Governance Framework or Indigenous Data Committee is identified in the metadata record
             query: |
               ASK {
@@ -178,6 +238,66 @@ scores:
             query: |
               ASK {
                   ?iri sdo:keywords <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
+              }
+          - value: 1
+            description: One or two Indigenous people have a recognised role in creating or contributing to the resource
+            query: |
+              ASK {
+                  {
+                      SELECT (COUNT(DISTINCT ?person) AS ?personCount)
+                      WHERE {
+                          {
+                              ?iri prov:qualifiedAttribution ?attribution .
+                              ?attribution a prov:Attribution ;
+                                  (dcat:hadRole|sdo:roleName) ?role ;
+                                  (prov:agent|sdo:agent) ?person .
+                              FILTER (
+                                  STRSTARTS(STR(?role), "https://linked.data.gov.au/def/data-roles/")
+                                  || EXISTS {
+                                      ?role a skos:Concept ;
+                                          skos:inScheme <https://linked.data.gov.au/def/data-roles> .
+                                  }
+                              )
+                          }
+                          UNION
+                          {
+                              ?iri (dcterms:creator|sdo:author) ?person .
+                          }
+                          ?person a sdo:Person ;
+                              (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
+                      }
+                  }
+                  FILTER (?personCount >= 1 && ?personCount <= 2)
+              }
+          - value: 2
+            description: Three or more Indigenous people have a recognised role in creating or contributing to the resource
+            query: |
+              ASK {
+                  {
+                      SELECT (COUNT(DISTINCT ?person) AS ?personCount)
+                      WHERE {
+                          {
+                              ?iri prov:qualifiedAttribution ?attribution .
+                              ?attribution a prov:Attribution ;
+                                  (dcat:hadRole|sdo:roleName) ?role ;
+                                  (prov:agent|sdo:agent) ?person .
+                              FILTER (
+                                  STRSTARTS(STR(?role), "https://linked.data.gov.au/def/data-roles/")
+                                  || EXISTS {
+                                      ?role a skos:Concept ;
+                                          skos:inScheme <https://linked.data.gov.au/def/data-roles> .
+                                  }
+                              )
+                          }
+                          UNION
+                          {
+                              ?iri (dcterms:creator|sdo:author) ?person .
+                          }
+                          ?person a sdo:Person ;
+                              (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
+                      }
+                  }
+                  FILTER (?personCount >= 3)
               }
           - value: 2
             description: Custodian (Role) Agent information in database has indigeneity = “Indigenous Persons Organisation” OR “Owned By Indigenous Persons” OR “Run By Indigenous Persons”
