@@ -34,6 +34,12 @@ To build (required to run the Vue component library), run:
 pnpm build
 ```
 
+## Reviewing scoring-rule changes
+
+The YAML files in [`definitions`](definitions) remain the scoring source of truth. Generated rule documentation and dependency diagrams are available in [`docs`](docs), and the review utility can validate definitions and report the impact of a proposed change.
+
+See [`yaml-to-markdown/README.md`](yaml-to-markdown/README.md) for generation, validation, testing, and impact-report commands.
+
 ## Calculator logic
 
 The tables below describe the scoring rules described in the YAML files in the [`/definitions`](/definitions) directory:
