@@ -23,6 +23,7 @@ const PREFIXES = `PREFIX dcat: <http://www.w3.org/ns/dcat#>
     PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX sdo: <https://schema.org/>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>`;
 
 export class ScoreCalculator {
@@ -186,7 +187,7 @@ export class ScoreCalculator {
         let resolved = true;
         let conditionsResult = true;
         if (r.query) {
-            const query = `${PREFIXES}\n${r.query.replace("?iri", `<${iri}>`)}`;
+            const query = `${PREFIXES}\n${r.query.replaceAll(/\?iri\b/g, `<${iri}>`)}`;
             queryResult = askQueryFn(query);
         }
         if (r.resolvable !== undefined) {
@@ -194,7 +195,7 @@ export class ScoreCalculator {
                 resolved = await this.checkResolvable(iri);
             }
             else {
-                const query = `${PREFIXES}\n${r.resolvable.query.replace("?iri", `<${iri}>`)}`;
+                const query = `${PREFIXES}\n${r.resolvable.query.replaceAll(/\?iri\b/g, `<${iri}>`)}`;
                 const sparqlResults = selectQueryFn(query).results!.bindings;
                 // @ts-ignore
                 resolved = (await Promise.all([...sparqlResults.map(x => this.checkResolvable(x[r.resolvable!.variable!].value))])).every(x => x);
