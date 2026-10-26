@@ -28,10 +28,6 @@ jobs:
         uses: astral-sh/setup-uv@v7
       - name: Validate scoring definitions
         run: uv run --project yaml-to-markdown python yaml-to-markdown/main.py validate
-      - name: Test scoring review tooling
-        run: uv run --project yaml-to-markdown python -m unittest discover -s yaml-to-markdown/tests
-      - name: Check generated scoring documentation
-        run: uv run --project yaml-to-markdown python yaml-to-markdown/main.py generate --check
       - name: Generate scoring impact report
         if: github.event_name == 'pull_request'
         run: |
@@ -39,6 +35,10 @@ jobs:
             --base-ref ${{ github.event.pull_request.base.sha }} \
             --output scoring-impact.md
           cat scoring-impact.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Test scoring review tooling
+        run: uv run --project yaml-to-markdown python -m unittest discover -s yaml-to-markdown/tests
+      - name: Check generated scoring documentation
+        run: uv run --project yaml-to-markdown python yaml-to-markdown/main.py generate --check
       - name: Type check JS library
         working-directory: js
         run: pnpm types
