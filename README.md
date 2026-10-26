@@ -813,7 +813,16 @@ The tables below describe the scoring rules described in the YAML files in the [
                             <tr>
                                 <td>At least two themes have been selected [1]</td>
                                 <td colspan="2"><p>Query</p>
-                                    <pre>ASK { ?iri dcat:theme ?theme }</pre>
+                                    <pre>ASK {
+  {
+    SELECT (COUNT(DISTINCT ?theme) AS ?themeCount)
+    WHERE {
+      ?iri sdo:keywords ?theme .
+    }
+  }
+  FILTER(?themeCount &gt;= 2)
+}
+</pre>
                                 </td>
                             </tr>
                             <tr>

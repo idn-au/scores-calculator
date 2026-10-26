@@ -268,7 +268,16 @@ scores:
             query: "ASK { ?iri sdo:spatialCoverage ?spatial }"
           - value: 1
             description: At least two themes have been selected
-            query: "ASK { ?iri sdo:keywords ?theme }"
+            query: |
+              ASK {
+                {
+                  SELECT (COUNT(DISTINCT ?theme) AS ?themeCount)
+                  WHERE {
+                    ?iri sdo:keywords ?theme .
+                  }
+                }
+                FILTER(?themeCount >= 2)
+              }
           - value: 1
             description: At least one language from AustLang has been selected
             query: "ASK { ?iri sdo:inLanguage ?austlang }"
