@@ -158,7 +158,7 @@ scores:
                   ?iri sdo:keywords <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
               }
           - value: 1
-            description: One or two Indigenous people have a recognised role in creating or contributing to the resource
+            description: At least one Indigenous person has a recognised role in creating or contributing to the resource
             query: |
               ASK {
                   {
@@ -185,10 +185,10 @@ scores:
                               (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
                       }
                   }
-                  FILTER (?personCount >= 1 && ?personCount <= 2)
+                  FILTER (?personCount >= 1)
               }
-          - value: 2
-            description: Three or more Indigenous people have a recognised role in creating or contributing to the resource
+          - value: 1
+            description: At least three Indigenous people have a recognised role in creating or contributing to the resource
             query: |
               ASK {
                   {
@@ -240,7 +240,7 @@ scores:
                   ?iri sdo:keywords <https://data.idnau.org/pid/vocab/indigeneity/by-indigenous-people> .
               }
           - value: 1
-            description: One or two Indigenous people have a recognised role in creating or contributing to the resource
+            description: At least one Indigenous person has a recognised role in creating or contributing to the resource
             query: |
               ASK {
                   {
@@ -267,10 +267,10 @@ scores:
                               (dcterms:type|sdo:additionalType) <https://data.idnau.org/pid/vocab/persons-indigenous-status/indigenous> .
                       }
                   }
-                  FILTER (?personCount >= 1 && ?personCount <= 2)
+                  FILTER (?personCount >= 1)
               }
-          - value: 2
-            description: Three or more Indigenous people have a recognised role in creating or contributing to the resource
+          - value: 1
+            description: At least three Indigenous people have a recognised role in creating or contributing to the resource
             query: |
               ASK {
                   {
